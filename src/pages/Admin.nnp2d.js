@@ -5,7 +5,7 @@ $w.onReady(function () {
     //When the swatch is clicked
     [1, 2, 3, 4].forEach(num => {
         $w(`#swatch${num}`).onClick(() => {
-            $w('#iFrameSwatch').src = `https://www.gvbg.org/swatch${num}`;
+            $w('#iFrameSwatch').src = `https://www.gvbg.org/Swatch${num}`;
         });
     });
 });
