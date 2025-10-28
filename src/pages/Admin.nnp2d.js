@@ -5,6 +5,6 @@ $w.onReady(function () {
     // When the image is clicked...
     $w('#swatch1').onClick(() => {
         // Change the URL of the iframe
-        $w('#iFrameSwatch').src = "Home"; // Replace with your target URL
+        $w('#iFrameSwatch').src = "https://www.gvbg.org/swatch1"; // Replace with your target URL
     });
 });
