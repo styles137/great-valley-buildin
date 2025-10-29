@@ -15,6 +15,8 @@
 //If you want to hide a page like "Dashboard" only for guests:
 import wixUsers from 'wix-users';
 
+import wixCRM from 'wix-crm-backend';
+
 $w.onReady(function () {
     let items = $w('#siteMenu1').items;
     const user = wixUsers.currentUser;
@@ -26,7 +28,7 @@ $w.onReady(function () {
     $w('#siteMenu1').items = items;
     console.log("Is user logged in?", user.loggedIn);
     if (user.loggedIn) {
-        const contact = await wixCRM.getContact(user.id);
+        const contact = wixCRM.getContact(user.id);
         console.log("Contact info:", contact);
 
         // For example:
