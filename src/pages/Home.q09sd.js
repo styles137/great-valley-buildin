@@ -14,25 +14,20 @@
 
 //If you want to hide a page like "Dashboard" only for guests:
 import wixUsers from 'wix-users';
+import wixData from 'wix-data';
 
-import wixCRM from 'wix-crm-backend';
-
-$w.onReady(function () {
-    let items = $w('#siteMenu1').items;
+$w.onReady(async function () {
     const user = wixUsers.currentUser;
 
-    if (!user.loggedIn) {
-        items = items.filter(item => item.label !== "Dashboard");
-    }
-
-    $w('#siteMenu1').items = items;
-    console.log("Is user logged in?", user.loggedIn);
     if (user.loggedIn) {
-        const contact = wixCRM.getContact(user.id);
-        console.log("Contact info:", contact);
+        const userId = user.id;
 
-        // For example:
-        console.log("First Name:", contact.firstName);
-        console.log("Last Name:", contact.lastName);
+        const results = await wixData.get("Members/PrivateMembersData", userId);
+        if (results) {
+            const name = results.firstName || results.nickname || results.loginEmail;
+            $w('#textUserName').text = `Welcome, ${name}!`;
+        }
+    } else {
+        $w('#textUserName').text = "Welcome, Guest!";
     }
 });
