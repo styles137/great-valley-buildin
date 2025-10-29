@@ -2,13 +2,26 @@
 // “Hello, World!” Example: https://learn-code.wix.com/en/article/hello-world
 
 $w.onReady(function () {
-    $w('#siteMenu1').onReady(() => {
-        const items = $w('#siteMenu1').items; // get all menu items
+    // Get current site menu items
+    let items = $w('#siteMenu1').items;
 
-        // Filter out or hide a specific page by label or link
-        const filteredItems = items.filter(item => item.label !== "Admin");
+    // Filter out one of them (e.g., hide "Admin")
+    items = items.filter(item => item.label !== "Admin");
 
-        // Apply filtered list back to menu
-        $w('#siteMenu1').items = filteredItems;
-    });
+    // Apply back to the site menu
+    $w('#siteMenu1').items = items;
 });
+
+//If you want to hide a page like "Dashboard" only for guests:
+// import wixUsers from 'wix-users';
+
+// $w.onReady(function () {
+//   let items = $w('#siteMenu1').items;
+//   const user = wixUsers.currentUser;
+
+//   if (!user.loggedIn) {
+//     items = items.filter(item => item.label !== "Dashboard");
+//   }
+
+//   $w('#siteMenu1').items = items;
+// });
