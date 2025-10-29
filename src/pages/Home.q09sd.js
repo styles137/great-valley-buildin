@@ -29,7 +29,7 @@ $w.onReady(async function () {
             if (member) {
                 // Try to find the most relevant name field
                 const name = member.name || member.nickname || member.loginEmail;
-                $w('#textUserName').text = "Welcome back, ${name}!";
+                $w('#textUserName').text = `Welcome back, ${name}!`;
             } else {
                 $w('#textUserName').text = "Welcome back!";
             }
