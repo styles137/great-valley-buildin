@@ -24,12 +24,13 @@ $w.onReady(function () {
     }
 
     $w('#siteMenu1').items = items;
-
-    console.log("Current user object:", user);
-
-    // Example: print the user ID
-    console.log("User ID:", user.id);
-
-    // Example: check if logged in
     console.log("Is user logged in?", user.loggedIn);
+    if (user.loggedIn) {
+        const contact = await wixCRM.getContact(user.id);
+        console.log("Contact info:", contact);
+
+        // For example:
+        console.log("First Name:", contact.firstName);
+        console.log("Last Name:", contact.lastName);
+    }
 });
