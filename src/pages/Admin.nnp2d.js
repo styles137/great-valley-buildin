@@ -1,5 +1,6 @@
 // API Reference: https://www.wix.com/velo/reference/api-overview/introduction
 // “Hello, World!” Example: https://learn-code.wix.com/en/article/hello-world
+import wixData from 'wix-data';
 
 $w.onReady(function () {
     // When the image is clicked...
@@ -40,4 +41,21 @@ $w.onReady(function () {
     //         $w('#iFrameSwatch').src = `https://www.gvbg.org/Swatch${num}`;
     //     });
     // });
+
+    // Load the current setting
+    const settings = await wixData.get("SiteSettings", "globalSettings");
+    $w('#contactUsSwitch').checked = settings.pageEnabled;
+
+    // Handle switch toggle
+    $w('#contactUsSwitch').onChange(async (event) => {
+        const checked = event.target.checked;
+
+        // Update the collection
+        await wixData.update("SiteSettings", {
+            _id: "globalSettings",
+            pageEnabled: checked
+        });
+
+        console.log("Page enabled set to:", checked);
+    });
 });
