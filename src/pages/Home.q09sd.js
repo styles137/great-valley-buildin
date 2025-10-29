@@ -19,6 +19,14 @@ import wixData from 'wix-data';
 $w.onReady(async function () {
     const user = wixUsers.currentUser;
 
+    // Get current site menu items
+    let items = $w('#siteMenu1').items;
+
+    // Filter out one of them (e.g., hide "Admin")
+    items = items.filter(item => item.label !== "Admin");
+    // Apply back to the site menu
+    $w('#siteMenu1').items = items;
+
     if (user.loggedIn) {
         const userId = user.id;
 
@@ -35,14 +43,30 @@ $w.onReady(async function () {
                 // Try to find the most relevant name field
                 const name = member.name || member.nickname || member.loginEmail;
                 $w('#textUserName').text = `Welcome back, ${name}!`;
+                // Filter out one of them (e.g., hide "Admin")
+                items = items.filter(item => item.label !== "Admin");
+                // Apply back to the site menu
+                $w('#siteMenu1').items = items;
             } else {
                 $w('#textUserName').text = "Welcome back!";
+                // Filter out one of them (e.g., hide "Admin")
+                items = items.filter(item => item.label !== "Admin");
+                // Apply back to the site menu
+                $w('#siteMenu1').items = items;
             }
         } catch (err) {
             console.error("Error getting member data:", err);
             $w('#textUserName').text = "Welcome!";
+            // Filter out one of them (e.g., hide "Admin")
+            items = items.filter(item => item.label !== "Admin");
+            // Apply back to the site menu
+            $w('#siteMenu1').items = items;
         }
     } else {
         $w('#textUserName').text = "Welcome, Guest!";
+        // Filter out one of them (e.g., hide "Admin")
+        items = items.filter(item => item.label !== "Admin");
+        // Apply back to the site menu
+        $w('#siteMenu1').items = items;
     }
 });
