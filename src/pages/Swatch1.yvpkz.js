@@ -26,11 +26,11 @@ $w.onReady(function () {
 
     $w('#BG5').onClick(() => {
         // Change background image dynamically
-        $w('#Swatch1').backgroundColor = #718D9B;
+        $w('#Swatch1').backgroundColor = "#718D9B";
     });
 
     $w('#BG6').onClick(() => {
         // Change background image dynamically
-        $w('#Swatch1').backgroundColor = #ffffff;
+        $w('#Swatch1').backgroundColor = "#ffffff";
     });
 });
