@@ -22,10 +22,20 @@ $w.onReady(async function () {
     if (user.loggedIn) {
         const userId = user.id;
 
-        const results = await wixData.get("Members/PrivateMembersData", userId);
-        if (results) {
-            const name = results.firstName || results.nickname || results.loginEmail;
-            $w('#textUserName').text = `Welcome, ${name}!`;
+        try {
+            // "Members/PrivateMembersData" is a special built-in collection
+            const member = await wixData.get("Members/PrivateMembersData", userId);
+            console.log("Results:", member.firstName, member.nickname, member.loginEmail);
+            if (member) {
+                // Try to find the most relevant name field
+                const name = member.firstName || member.nickname || member.loginEmail;
+                $w('#textUserName').text = `Welcome back, ${name}!`;
+            } else {
+                $w('#textUserName').text = "Welcome back!";
+            }
+        } catch (err) {
+            console.error("Error getting member data:", err);
+            $w('#textUserName').text = "Welcome!";
         }
     } else {
         $w('#textUserName').text = "Welcome, Guest!";
