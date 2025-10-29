@@ -2,9 +2,13 @@
 // “Hello, World!” Example: https://learn-code.wix.com/en/article/hello-world
 
 $w.onReady(function () {
-    // Write your JavaScript here
+    $w('#siteMenu1').onReady(() => {
+        const items = $w('#siteMenu1').items; // get all menu items
 
-    // To select an element by ID use: $w('#elementID')
+        // Filter out or hide a specific page by label or link
+        const filteredItems = items.filter(item => item.label !== "Admin");
 
-    // Click 'Preview' to run your code
+        // Apply filtered list back to menu
+        $w('#siteMenu1').items = filteredItems;
+    });
 });
