@@ -25,8 +25,13 @@ $w.onReady(async function () {
         try {
             // "Members/PrivateMembersData" is a special built-in collection
             const member = await wixData.get("Members/PrivateMembersData", userId);
-            console.log("Results:", member.firstName, member.nickname, member.loginEmail);
-            if (member) {
+            console.log("Results:", member.name, member.nickname, member.loginEmail);
+            if (member.loginEmail == 'ibarwick@me.com') {
+                // Try to find the most relevant name field
+                const name = member.name || member.nickname || member.loginEmail;
+                $w('#textUserName').text = `Welcome back, WebMaster Ian`;
+            }
+            else if (member) {
                 // Try to find the most relevant name field
                 const name = member.name || member.nickname || member.loginEmail;
                 $w('#textUserName').text = `Welcome back, ${name}!`;
