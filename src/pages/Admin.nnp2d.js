@@ -6,30 +6,37 @@ $w.onReady(function () {
     $w('#swatch1').onClick(() => {
         // Change the URL of the iframe
         $w('#iFrameSwatch').src = "https://www.gvbg.org/swatch1"; // Replace with your target URL
-    });
+        //Modify BG Color 
+        $w('#swatchBG').style.backgroundColor = "#718d9b"; // Replace with color
 
-    // When the image is clicked...
-    $w('#swatch2').onClick(() => {
-        // Change the URL of the iframe
-        $w('#iFrameSwatch').src = "https://www.gvbg.org/swatch2"; // Replace with your target URL
-    });
+        // When the image is clicked...
+        $w('#swatch2').onClick(() => {
+            // Change the URL of the iframe
+            $w('#iFrameSwatch').src = "https://www.gvbg.org/swatch2"; // Replace with your target URL
+            //Modify BG Color 
+            $w('#swatchBG').style.backgroundColor = "#718d9b"; // Replace with color
+        });
 
-    // When the image is clicked...
-    $w('#swatch3').onClick(() => {
-        // Change the URL of the iframe
-        $w('#iFrameSwatch').src = "https://www.gvbg.org/swatch3"; // Replace with your target URL
-    });
+        // When the image is clicked...
+        $w('#swatch3').onClick(() => {
+            // Change the URL of the iframe
+            $w('#iFrameSwatch').src = "https://www.gvbg.org/swatch3"; // Replace with your target URL
+            //Modify BG Color 
+            $w('#swatchBG').style.backgroundColor = "#718d9b"; // Replace with color
+        });
 
-    // When the image is clicked...
-    $w('#swatch4').onClick(() => {
-        // Change the URL of the iframe
-        $w('#iFrameSwatch').src = "https://www.gvbg.org/swatch4"; // Replace with your target URL
-    });
+        // When the image is clicked...
+        $w('#swatch4').onClick(() => {
+            // Change the URL of the iframe
+            $w('#iFrameSwatch').src = "https://www.gvbg.org/swatch4"; // Replace with your target URL
+            //Modify BG Color 
+            $w('#swatchBG').style.backgroundColor = "#718d9b"; // Replace with color
+        });
 
-    //When the swatch is clicked
-    // [1, 2, 3, 4].forEach(num => {
-    //     $w(`#swatch${num}`).onClick(() => {
-    //         $w('#iFrameSwatch').src = `https://www.gvbg.org/Swatch${num}`;
-    //     });
-    // });
-});
+        //When the swatch is clicked
+        // [1, 2, 3, 4].forEach(num => {
+        //     $w(`#swatch${num}`).onClick(() => {
+        //         $w('#iFrameSwatch').src = `https://www.gvbg.org/Swatch${num}`;
+        //     });
+        // });
+    });
