@@ -1,27 +1,35 @@
 // API Reference: https://www.wix.com/velo/reference/api-overview/introduction
 // “Hello, World!” Example: https://learn-code.wix.com/en/article/hello-world
 
-$w.onReady(function () {
-    // Get current site menu items
-    let items = $w('#siteMenu1').items;
+// $w.onReady(function () {
+//     // Get current site menu items
+//     let items = $w('#siteMenu1').items;
 
-    // Filter out one of them (e.g., hide "Admin")
-    items = items.filter(item => item.label !== "Admin");
+//     // Filter out one of them (e.g., hide "Admin")
+//     items = items.filter(item => item.label !== "Admin");
 
-    // Apply back to the site menu
-    $w('#siteMenu1').items = items;
-});
+//     // Apply back to the site menu
+//     $w('#siteMenu1').items = items;
+// });
 
 //If you want to hide a page like "Dashboard" only for guests:
-// import wixUsers from 'wix-users';
+import wixUsers from 'wix-users';
 
-// $w.onReady(function () {
-//   let items = $w('#siteMenu1').items;
-//   const user = wixUsers.currentUser;
+$w.onReady(function () {
+    let items = $w('#siteMenu1').items;
+    const user = wixUsers.currentUser;
 
-//   if (!user.loggedIn) {
-//     items = items.filter(item => item.label !== "Dashboard");
-//   }
+    if (!user.loggedIn) {
+        items = items.filter(item => item.label !== "Dashboard");
+    }
 
-//   $w('#siteMenu1').items = items;
-// });
+    $w('#siteMenu1').items = items;
+
+    console.log("Current user object:", user);
+
+    // Example: print the user ID
+    console.log("User ID:", user.id);
+
+    // Example: check if logged in
+    console.log("Is user logged in?", user.loggedIn);
+});
