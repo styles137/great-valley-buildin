@@ -43,7 +43,7 @@ $w.onReady(function () {
     // });
 
     // Load the current setting
-    const settings = await wixData.get("SiteSettings", "globalSettings");
+    const settings = wixData.get("SiteSettings", "globalSettings");
     $w('#contactUsSwitch').checked = settings.pageEnabled;
 
     // Handle switch toggle
