@@ -2,6 +2,40 @@
 // “Hello, World!” Example: https://learn-code.wix.com/en/article/hello-world
 
 $w.onReady(function () {
+    $w.onReady(function () {
+        $w('#BG1F').onClick(() => {
+            // Change background image dynamically
+            $w('#body').background.src = "https://static.wixstatic.com/media/a4a336_1a1b2b1221744620b116a7b095ab7c71~mv2.jpg";
+        });
+
+        $w('#BG2F').onClick(() => {
+            // Change background image dynamically
+            $w('#body').background.src = "https://static.wixstatic.com/media/a4a336_85df8842d3444e04a9405fb8a1d0e0c2~mv2.jpg";
+        });
+
+        $w('#BG3F').onClick(() => {
+            // Change background image dynamically
+            $w('#body').background.src = "https://static.wixstatic.com/media/a4a336_54e2f8329fca4be5b7d3c0e0aa16eadc~mv2.jpg";
+        });
+
+        $w('#BG4F').onClick(() => {
+            // Change background image dynamically
+            $w('#body').background.src = "https://static.wixstatic.com/media/a4a336_5d842850e8d34fb8a163b33172a1df09~mv2.jpg";
+        });
+
+        $w('#BG5F').onClick(() => {
+            // Change background image dynamically
+            $w('#body').style.backgroundColor = "#718D9B";
+            $w('#body').background.src = "";
+        });
+
+        $w('#BG6F').onClick(() => {
+            // Change background image dynamically
+            $w('#body').style.backgroundColor = "#ffffff";
+            $w('#body').background.src = "";
+        });
+    });
+
     // Tray pasting these into the HTML spot on the test page in designer for cloud backgroud
 
     //     <!-- #1 Constantly rolling fog with mouse swirl (robust against rAF throttling) -->
