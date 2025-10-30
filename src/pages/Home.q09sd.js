@@ -70,8 +70,8 @@ $w.onReady(async function () {
                 const name = member.name || member.nickname || member.loginEmail;
                 console.log("Items1:", items);
                 //$w('#textUserName').style.color = "#ffffff";
-                $w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
-                //$w('#textUserName').text = `Welcome back, WebMaster Ian`;
+                //$w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
+                $w('#textUserName').text = `Welcome back, WebMaster Ian`;
                 $w('#siteMenu1').items = webmasterItems;
             }
             else if (member) {
