@@ -67,12 +67,14 @@ $w.onReady(async function () {
                 // Try to find the most relevant name field
                 const name = member.name || member.nickname || member.loginEmail;
                 console.log("Items1:", items);
+                $w('#textUserName').style.color = "ffffff";
                 $w('#textUserName').text = `Welcome back, WebMaster Ian`;
                 $w('#siteMenu1').items = webmasterItems;
             }
             else if (member) {
                 // Try to find the most relevant name field
                 const name = member.name || member.nickname || member.loginEmail;
+                $w('#textUserName').style.color = "ffffff";
                 $w('#textUserName').text = `Welcome back, ${name}!`;
                 // Filter out one of them (e.g., hide "Admin")
                 // items = items.filter(item => item.label !== "Admin");
@@ -84,6 +86,7 @@ $w.onReady(async function () {
                 // Apply back to the site menu
                 $w('#siteMenu1').items = items;
             } else {
+                $w('#textUserName').style.color = "ffffff";
                 $w('#textUserName').text = "Welcome back!";
                 // Filter out one of them (e.g., hide "Admin")
                 // items = items.filter(item => item.label !== "Admin");
@@ -97,6 +100,7 @@ $w.onReady(async function () {
             }
         } catch (err) {
             console.error("Error getting member data:", err);
+            $w('#textUserName').style.color = "ffffff";
             $w('#textUserName').text = "Welcome!";
             // items = items.filter(item => item.label !== "Admin");
             // items = items.filter(item => item.label !== "home");
@@ -108,6 +112,7 @@ $w.onReady(async function () {
             $w('#siteMenu1').items = items;
         }
     } else {
+        $w('#textUserName').style.color = "ffffff";
         $w('#textUserName').text = "Welcome, Guest!";
         // items = items.filter(item => item.label !== "Admin");
         // items = items.filter(item => item.label !== "home");
@@ -188,3 +193,26 @@ $w.onReady(async function () {
 //         console.log("Fallback guest menu:", filtered.map(i => i.label));
 //     }
 // });
+
+//****Home page HTML code in editor*/
+// <!-- Moving Fog Background -->
+// <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+// <script src="https://cdn.jsdelivr.net/npm/vanta/dist/vanta.fog.min.js"></script>
+
+// <div id="vanta-bg"
+//      style="width:100vw; height:100vh; position:fixed; top:0; left:0; z-index:-1; opacity:0.7;">
+// </div>
+
+// <script>
+// VANTA.FOG({
+//   el: "#vanta-bg",
+//   mouseControls: true,
+//   touchControls: true,
+//   highlightColor: 0xffffff,
+//   midtoneColor: 0x718d9b,
+//   lowlightColor: 0x95baba,
+//   baseColor: 0x162d3a,
+//   blurFactor: 0.7,
+//   speed: 1.5,
+// });
+// </script>
