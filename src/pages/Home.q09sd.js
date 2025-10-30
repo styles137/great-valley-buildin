@@ -24,7 +24,7 @@ import wixLocation from 'wix-location';
 
 $w.onReady(async function () {
     // Wait for page + menu to fully load
-    await wixWindow.waitForViewportEnter();
+    //await wixWindow.waitForViewportEnter();
 
     const siteMenu = $w('#siteMenu1');
     let items = siteMenu.items; // always fresh
