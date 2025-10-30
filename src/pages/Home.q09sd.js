@@ -49,31 +49,42 @@ $w.onReady(async function () {
                 const name = member.name || member.nickname || member.loginEmail;
                 $w('#textUserName').text = `Welcome back, ${name}!`;
                 // Filter out one of them (e.g., hide "Admin")
-                items = items.filter(item => !exclude.includes(item.label));
+                items = items.filter(item => item.label !== "Admin");
+                items = items.filter(item => item.label !== "home");
+                items = items.filter(item => item.label !== "fog");
+                items = items.filter(item => item.label !== "projects");
+                //items = items.filter(item => !exclude.includes(item.label));
                 // Apply back to the site menu
                 $w('#siteMenu1').items = items;
             } else {
                 $w('#textUserName').text = "Welcome back!";
                 // Filter out one of them (e.g., hide "Admin")
-                //items = items.filter(item => item.label !== "Admin");
-                items = items.filter(item => !exclude.includes(item.label));
+                items = items.filter(item => item.label !== "Admin");
+                items = items.filter(item => item.label !== "home");
+                items = items.filter(item => item.label !== "fog");
+                items = items.filter(item => item.label !== "projects");
+                //items = items.filter(item => !exclude.includes(item.label));
                 // Apply back to the site menu
                 $w('#siteMenu1').items = items;
             }
         } catch (err) {
             console.error("Error getting member data:", err);
             $w('#textUserName').text = "Welcome!";
-            // Filter out one of them (e.g., hide "Admin")
-            //items = items.filter(item => item.label !== "Admin");
-            items = items.filter(item => !exclude.includes(item.label));
+            items = items.filter(item => item.label !== "Admin");
+            items = items.filter(item => item.label !== "home");
+            items = items.filter(item => item.label !== "fog");
+            items = items.filter(item => item.label !== "projects");
+            //items = items.filter(item => !exclude.includes(item.label));
             // Apply back to the site menu
             $w('#siteMenu1').items = items;
         }
     } else {
         $w('#textUserName').text = "Welcome, Guest!";
-        // Filter out one of them (e.g., hide "Admin")
-        //items = items.filter(item => item.label !== "Admin");
-        items = items.filter(item => !exclude.includes(item.label));
+        items = items.filter(item => item.label !== "Admin");
+        items = items.filter(item => item.label !== "home");
+        items = items.filter(item => item.label !== "fog");
+        items = items.filter(item => item.label !== "projects");
+        //items = items.filter(item => !exclude.includes(item.label));
         // Apply back to the site menu
         $w('#siteMenu1').items = items;
     }
