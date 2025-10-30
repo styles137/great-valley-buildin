@@ -22,6 +22,7 @@ $w.onReady(async function () {
 
     // Get current site menu items
     let items = $w('#siteMenu1').items;
+    let webmasterItems = $w('#siteMenu1').items;
     console.log("Items:", items);
 
     // Filter out one of them (e.g., hide "Admin")
@@ -30,7 +31,7 @@ $w.onReady(async function () {
 
     console.log("Items:", items);
     // Apply back to the site menu
-    $w('#siteMenu1').items = items;
+    //$w('#siteMenu1').items = items;
 
 
     //Exclude viewing these pages
@@ -49,6 +50,7 @@ $w.onReady(async function () {
                 //items = items.filter(item => item.label !== "projects");
                 console.log("Items1:", items);
                 $w('#textUserName').text = `Welcome back, WebMaster Ian`;
+                $w('#siteMenu1').items = items;
             }
             else if (member) {
                 // Try to find the most relevant name field
