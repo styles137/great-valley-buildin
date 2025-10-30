@@ -25,7 +25,7 @@ $w.onReady(async function () {
     console.log("Items:", items);
 
     // Filter out one of them (e.g., hide "Admin")
-    items = items.filter(item => item.label !== "projects");
+    items = items.filter(item => item.label !== "Projects");
     items = items.filter(item => item.label !== "Admin");
 
     console.log("Items:", items);
