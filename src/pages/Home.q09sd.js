@@ -15,6 +15,7 @@
 //If you want to hide a page like "Dashboard" only for guests:
 import wixUsers from 'wix-users';
 import wixData from 'wix-data';
+import { itemVariants } from 'wix-restaurants.v2';
 
 $w.onReady(async function () {
     const user = wixUsers.currentUser;
@@ -26,6 +27,10 @@ $w.onReady(async function () {
     items = items.filter(item => item.label !== "Admin");
     // Apply back to the site menu
     $w('#siteMenu1').items = items;
+
+
+    //Exclude viewing these pages
+    const exclude = ["Admin", "Home"];
 
     if (user.loggedIn) {
         const userId = user.id;
@@ -44,13 +49,14 @@ $w.onReady(async function () {
                 const name = member.name || member.nickname || member.loginEmail;
                 $w('#textUserName').text = `Welcome back, ${name}!`;
                 // Filter out one of them (e.g., hide "Admin")
-                items = items.filter(item => item.label !== "Admin");
+                items = items.filter(item => !exclude.includes(item.label));
                 // Apply back to the site menu
                 $w('#siteMenu1').items = items;
             } else {
                 $w('#textUserName').text = "Welcome back!";
                 // Filter out one of them (e.g., hide "Admin")
-                items = items.filter(item => item.label !== "Admin");
+                //items = items.filter(item => item.label !== "Admin");
+                items = items.filter(item => !exclude.includes(item.label));
                 // Apply back to the site menu
                 $w('#siteMenu1').items = items;
             }
@@ -58,14 +64,16 @@ $w.onReady(async function () {
             console.error("Error getting member data:", err);
             $w('#textUserName').text = "Welcome!";
             // Filter out one of them (e.g., hide "Admin")
-            items = items.filter(item => item.label !== "Admin");
+            //items = items.filter(item => item.label !== "Admin");
+            items = items.filter(item => !exclude.includes(item.label));
             // Apply back to the site menu
             $w('#siteMenu1').items = items;
         }
     } else {
         $w('#textUserName').text = "Welcome, Guest!";
         // Filter out one of them (e.g., hide "Admin")
-        items = items.filter(item => item.label !== "Admin");
+        //items = items.filter(item => item.label !== "Admin");
+        items = items.filter(item => !exclude.includes(item.label));
         // Apply back to the site menu
         $w('#siteMenu1').items = items;
     }
