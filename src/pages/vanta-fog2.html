@@ -1,48 +1,56 @@
-<!-- #1 Constantly rolling fog with mouse swirl (robust against rAF throttling) -->
-
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>VANTA.FOG Background</title>
+    <meta charset="UTF-8">
+    <title>Rolling Fog Background</title>
     <style>
-        body,
-        html {
+        html,
+        body {
             margin: 0;
             padding: 0;
             height: 100%;
             width: 100%;
             overflow: hidden;
+            background: #909aa2;
         }
 
-        #vanta-fog-bg {
-            height: 100%;
-            width: 100%;
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
         }
     </style>
 </head>
 
 <body>
-    <div id="vanta-fog-bg"></div>
+    <canvas id="fogCanvas"></canvas>
 
+    <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-    <canvas id="fogCanvas" style="width:100vw; height:100vh; position:fixed; top:0; left:0; z-index:-1;"></canvas>
 
     <script>
+        // Setup renderer
         const canvas = document.getElementById('fogCanvas');
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
 
+        // Scene & camera
         const scene = new THREE.Scene();
         const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
+        // Shader uniforms
         const uniforms = {
             u_time: { value: 0.0 },
             u_mouse: { value: new THREE.Vector2(0.5, 0.5) },
             u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
         };
 
+        // Shader material
         const material = new THREE.ShaderMaterial({
             uniforms,
             fragmentShader: `
@@ -50,9 +58,7 @@
         uniform vec2 u_mouse;
         uniform float u_time;
 
-        // Hash / smooth noise helpers
         float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
-
         float noise(vec2 p) {
           vec2 i = floor(p);
           vec2 f = fract(p);
@@ -60,58 +66,69 @@
           float b = hash(i + vec2(1.0, 0.0));
           float c = hash(i + vec2(0.0, 1.0));
           float d = hash(i + vec2(1.0, 1.0));
-          vec2 u = f * f * (3.0 - 2.0 * f);
-          return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+          vec2 u = f*f*(3.0-2.0*f);
+          return mix(a,b,u.x) + (c-a)*u.y*(1.0-u.x) + (d-b)*u.x*u.y;
         }
-
         float fbm(vec2 p) {
           float v = 0.0;
           float a = 0.5;
-          for (int i = 0; i < 5; i++) {
-            v += a * noise(p);
-            p *= 2.0;
-            a *= 0.5;
-          }
+          for (int i=0;i<5;i++){ v += a*noise(p); p *= 2.0; a *= 0.5; }
           return v;
         }
-
         void main() {
           vec2 st = gl_FragCoord.xy / u_resolution.xy;
-          // keep aspect ratio
           st.x *= u_resolution.x / u_resolution.y;
 
-          // continuous motion (time-driven)
           float t = u_time * 0.08;
-          vec2 drift1 = vec2(t * 0.45, -t * 0.2);
-          vec2 drift2 = vec2(-t * 0.25, t * 0.35);
+          vec2 drift1 = vec2(t*0.45, -t*0.2);
+          vec2 drift2 = vec2(-t*0.25, t*0.35);
 
-          // layered rolling fog
-          float base = fbm(st * 2.5 + drift1);
-          base += 0.6 * fbm(st * 4.0 + drift2);
+          float base = fbm(st*2.5 + drift1);
+          base += 0.6*fbm(st*4.0 + drift2);
           base *= 0.7;
 
-          // mouse swirl disturbance
           vec2 mouse = u_mouse;
           vec2 toMouse = st - mouse;
           float dist = length(toMouse);
-          float influence = exp(-dist * 9.0);          // radius
-          float swirlAngle = influence * 6.0;          // strength
+          float influence = exp(-dist*9.0);
+          float swirlAngle = influence*6.0;
           mat2 rot = mat2(cos(swirlAngle), -sin(swirlAngle),
-                          sin(swirlAngle),  cos(swirlAngle));
-          vec2 swirlCoord = rot * (st - mouse) + mouse;
+                          sin(swirlAngle), cos(swirlAngle));
+          vec2 swirlCoord = rot*(st-mouse) + mouse;
+          float swirlLayer = fbm(swirlCoord*3.0 + drift1*1.3);
 
-          // additional layer that uses swirl coords
-          float swirlLayer = fbm(swirlCoord * 3.0 + drift1 * 1.3);
-
-          // combine and smooth
-          float fog = mix(base, swirlLayer, influence * 0.9);
+          float fog = mix(base, swirlLayer, influence*0.9);
           fog = smoothstep(0.25, 0.85, fog);
-
-          // color (soft bluish-gray)
-          vec3 col = mix(vec3(0.55, 0.62, 0.68), vec3(0.95,0.95,0.96), fog * 0.9);
-          gl_FragColor = vec4(col, 1.0);
+          vec3 col = mix(vec3(0.55,0.62,0.68), vec3(0.95,0.95,0.96), fog*0.9);
+          gl_FragColor = vec4(col,1.0);
         }
       `
-</body >
+        });
 
-</html >
+        // Plane geometry
+        const plane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+        scene.add(plane);
+
+        // Mouse interaction
+        window.addEventListener('mousemove', e => {
+            uniforms.u_mouse.value.x = e.clientX / window.innerWidth;
+            uniforms.u_mouse.value.y = 1.0 - e.clientY / window.innerHeight;
+        });
+
+        // Resize handling
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            uniforms.u_resolution.value.set(window.innerWidth, window.innerHeight);
+        });
+
+        // Animation loop
+        function animate(t) {
+            uniforms.u_time.value = t * 0.001;
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+        requestAnimationFrame(animate);
+    </script>
+</body>
+
+</html>
