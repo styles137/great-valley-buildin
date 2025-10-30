@@ -16,96 +16,106 @@
 import wixUsers from 'wix-users';
 import wixData from 'wix-data';
 import { itemVariants } from 'wix-restaurants.v2';
+import wixWindow from 'wix-window';
 
 $w.onReady(async function () {
-    // const user = wixUsers.currentUser;
+    const user = wixUsers.currentUser;
 
-    // // Get current site menu items
-    // let items = $w('#siteMenu1').items;
-    // let webmasterItems = $w('#siteMenu1').items;
-    // console.log("Items:", items);
+    // Get current site menu items
+    let items = $w('#siteMenu1').items;
+    let webmasterItems = $w('#siteMenu1').items;
+    console.log("Items:", items);
 
-    // // Filter out one of them (e.g., hide "Admin")
-    // items = items.filter(item => item.label !== "Home");
-    // items = items.filter(item => item.label !== "Projects");
-    // items = items.filter(item => item.label !== "About");
-    // items = items.filter(item => item.label !== "Fog");
-    // items = items.filter(item => item.label !== "Net");
-    // items = items.filter(item => item.label !== "Waves");
-    // items = items.filter(item => item.label !== "Clouds");
-    // items = items.filter(item => item.label !== "Net");
-    // items = items.filter(item => item.label !== "Admin");
+    // Filter out one of them (e.g., hide "Admin")
+    items = items.filter(item => item.label !== "Home");
+    items = items.filter(item => item.label !== "Projects");
+    items = items.filter(item => item.label !== "About");
+    items = items.filter(item => item.label !== "Fog");
+    items = items.filter(item => item.label !== "Net");
+    items = items.filter(item => item.label !== "Waves");
+    items = items.filter(item => item.label !== "Clouds");
+    items = items.filter(item => item.label !== "Net");
+    items = items.filter(item => item.label !== "Admin");
 
-    // console.log("Items:", items);
-    // // Apply back to the site menu
-    // $w('#siteMenu1').items = items;
+    console.log("Items:", items);
+    // Apply back to the site menu
+    $w('#siteMenu1').items = items;
 
 
-    // //Exclude viewing these pages
-    // const exclude = ["Admin", "Home", "Projects", "About", "Fog", "Clouds", "Net", "Waves", "Wonts"];
+    //Exclude viewing these pages
+    const exclude = ["Admin", "Home", "Projects", "About", "Fog", "Clouds", "Net", "Waves", "Wonts"];
 
-    // if (user.loggedIn) {
-    //     const userId = user.id;
+    if (user.loggedIn) {
+        const userId = user.id;
 
-    //     try {
-    //         // "Members/PrivateMembersData" is a special built-in collection
-    //         const member = await wixData.get("Members/PrivateMembersData", userId);
-    //         console.log("Results:", member.name, member.nickname, member.loginEmail);
-    //         if (member.loginEmail == 'ibarwick@me.com') {
-    //             // Try to find the most relevant name field
-    //             const name = member.name || member.nickname || member.loginEmail;
-    //             console.log("Items1:", items);
-    //             $w('#textUserName').text = `Welcome back, WebMaster Ian`;
-    //             $w('#siteMenu1').items = webmasterItems;
-    //         }
-    //         else if (member) {
-    //             // Try to find the most relevant name field
-    //             const name = member.name || member.nickname || member.loginEmail;
-    //             $w('#textUserName').text = `Welcome back, ${name}!`;
-    //             // Filter out one of them (e.g., hide "Admin")
-    //             // items = items.filter(item => item.label !== "Admin");
-    //             // items = items.filter(item => item.label !== "home");
-    //             // items = items.filter(item => item.label !== "fog");
-    //             //items = items.filter(item => item.label !== "Projects");
-    //             console.log("Items2:", items);
-    //             //items = items.filter(item => !exclude.includes(item.label));
-    //             // Apply back to the site menu
-    //             $w('#siteMenu1').items = items;
-    //         } else {
-    //             $w('#textUserName').text = "Welcome back!";
-    //             // Filter out one of them (e.g., hide "Admin")
-    //             // items = items.filter(item => item.label !== "Admin");
-    //             // items = items.filter(item => item.label !== "home");
-    //             // items = items.filter(item => item.label !== "fog");
-    //             //items = items.filter(item => item.label !== "Projects");
-    //             console.log("Items3:", items);
-    //             //items = items.filter(item => !exclude.includes(item.label));
-    //             // Apply back to the site menu
-    //             $w('#siteMenu1').items = items;
-    //         }
-    //     } catch (err) {
-    //         console.error("Error getting member data:", err);
-    //         $w('#textUserName').text = "Welcome!";
-    //         // items = items.filter(item => item.label !== "Admin");
-    //         // items = items.filter(item => item.label !== "home");
-    //         // items = items.filter(item => item.label !== "fog");
-    //         //items = items.filter(item => item.label !== "Projects");
-    //         console.log("Items4:", items);
-    //         //items = items.filter(item => !exclude.includes(item.label));
-    //         // Apply back to the site menu
-    //         $w('#siteMenu1').items = items;
-    //     }
-    // } else {
-    //     $w('#textUserName').text = "Welcome, Guest!";
-    //     // items = items.filter(item => item.label !== "Admin");
-    //     // items = items.filter(item => item.label !== "home");
-    //     // items = items.filter(item => item.label !== "fog");
-    //     //items = items.filter(item => item.label !== "Projects");
-    //     console.log("Items5:", items);
-    //     //items = items.filter(item => !exclude.includes(item.label));
-    //     // Apply back to the site menu
-    //     $w('#siteMenu1').items = items;
-    // }
+        try {
+            // "Members/PrivateMembersData" is a special built-in collection
+            const member = await wixData.get("Members/PrivateMembersData", userId);
+            console.log("Results:", member.name, member.nickname, member.loginEmail);
+            if (member.loginEmail == 'ibarwick@me.com') {
+                // Try to find the most relevant name field
+                const name = member.name || member.nickname || member.loginEmail;
+                console.log("Items1:", items);
+                $w('#textUserName').text = `Welcome back, WebMaster Ian`;
+                $w('#siteMenu1').items = webmasterItems;
+            }
+            else if (member) {
+                // Try to find the most relevant name field
+                const name = member.name || member.nickname || member.loginEmail;
+                $w('#textUserName').text = `Welcome back, ${name}!`;
+                // Filter out one of them (e.g., hide "Admin")
+                // items = items.filter(item => item.label !== "Admin");
+                // items = items.filter(item => item.label !== "home");
+                // items = items.filter(item => item.label !== "fog");
+                //items = items.filter(item => item.label !== "Projects");
+                console.log("Items2:", items);
+                //items = items.filter(item => !exclude.includes(item.label));
+                // Apply back to the site menu
+                $w('#siteMenu1').items = items;
+            } else {
+                $w('#textUserName').text = "Welcome back!";
+                // Filter out one of them (e.g., hide "Admin")
+                // items = items.filter(item => item.label !== "Admin");
+                // items = items.filter(item => item.label !== "home");
+                // items = items.filter(item => item.label !== "fog");
+                //items = items.filter(item => item.label !== "Projects");
+                console.log("Items3:", items);
+                //items = items.filter(item => !exclude.includes(item.label));
+                // Apply back to the site menu
+                $w('#siteMenu1').items = items;
+            }
+        } catch (err) {
+            console.error("Error getting member data:", err);
+            $w('#textUserName').text = "Welcome!";
+            // items = items.filter(item => item.label !== "Admin");
+            // items = items.filter(item => item.label !== "home");
+            // items = items.filter(item => item.label !== "fog");
+            //items = items.filter(item => item.label !== "Projects");
+            console.log("Items4:", items);
+            //items = items.filter(item => !exclude.includes(item.label));
+            // Apply back to the site menu
+            $w('#siteMenu1').items = items;
+        }
+    } else {
+        $w('#textUserName').text = "Welcome, Guest!";
+        // items = items.filter(item => item.label !== "Admin");
+        // items = items.filter(item => item.label !== "home");
+        // items = items.filter(item => item.label !== "fog");
+        //items = items.filter(item => item.label !== "Projects");
+        console.log("Items5:", items);
+        //items = items.filter(item => !exclude.includes(item.label));
+        // Apply back to the site menu
+        $w('#siteMenu1').items = items;
+    }
+
+    if (wixWindow.formFactor === "Mobile") {
+        // Hide specific elements for mobile
+        $w('#boxPromo').hide();
+
+        console.log("Mobile device detected — elements hidden");
+    } else {
+        console.log("Desktop or tablet — all visible");
+    }
 });
 //second attempt below
 //
