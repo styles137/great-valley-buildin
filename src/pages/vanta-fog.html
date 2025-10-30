@@ -29,7 +29,7 @@
     <script>
         VANTA.FOG({
             el: "#vanta-fog-bg",
-            mouseControls: true,
+            mouseControls: false,   //orig is true
             touchControls: true,
             gyroControls: false,
             minHeight: 200.00,
@@ -39,6 +39,15 @@
             lowlightColor: 0x3c446b,
             baseColor: 0x10132e,
             speed: 1.5
+        });
+
+        document.addEventListener("mousemove", e => {
+            const x = (e.clientX / window.innerWidth - 0.5) * 0.5;
+            const y = (e.clientY / window.innerHeight - 0.5) * 0.5;
+            if (effect.camera) {
+                effect.camera.rotation.x = y;
+                effect.camera.rotation.y = x;
+            }
         });
     </script>
 </body>
