@@ -30,7 +30,7 @@ $w.onReady(async function () {
 
 
     //Exclude viewing these pages
-    const exclude = ["Admin", "Home"];
+    const exclude = ["Admin", "home", "projects", "about", "fog", "clouds", "net", "waves", "fonts"];
 
     if (user.loggedIn) {
         const userId = user.id;
