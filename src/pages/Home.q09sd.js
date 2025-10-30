@@ -22,6 +22,7 @@ $w.onReady(async function () {
 
     // Get current site menu items
     let items = $w('#siteMenu1').items;
+    console.log("Items:", items);
 
     // Filter out one of them (e.g., hide "Admin")
     items = items.filter(item => item.label !== "Admin");
