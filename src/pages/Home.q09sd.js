@@ -23,57 +23,59 @@ import wixWindow from 'wix-window';
 import wixLocation from 'wix-location';
 
 $w.onReady(async function () {
-    // Wait for page + menu to fully load
-    //await wixWindow.waitForViewportEnter();
-
     const siteMenu = $w('#siteMenu1');
-    let items = siteMenu.items; // always fresh
+    let items = siteMenu.items;
     const user = wixUsers.currentUser;
 
     console.log("Original Menu Items:", items.map(i => i.label));
 
-    // Define what each user type should not see
+    // Define exclusions
     const guestExclude = ["Admin", "Projects", "About"];
-    const memberExclude = ["Admin"]; // regular members hide Admin
-    const webmasterEmail = "ibarwick@me.com"; // your admin email
+    const memberExclude = ["Admin"];
+    const webmasterEmail = "ibarwick@me.com";
+
+    // --- Helper: Safe filter that ignores case + spaces ---
+    const safeFilter = (items, excludeList) => {
+        const normalizedExcludes = excludeList.map(e => e.trim().toLowerCase());
+        return items.filter(item => {
+            const label = item.label.trim().toLowerCase();
+            return !normalizedExcludes.includes(label);
+        });
+    };
 
     // ---- Guest ----
     if (!user.loggedIn) {
         console.log("Guest detected — filtering menu...");
-        const filtered = items.filter(item => !guestExclude.includes(item.label));
+        const filtered = safeFilter(items, guestExclude);
         siteMenu.items = filtered;
-        $w('#textUserName').text = "Welcome, Guest!";
+        if ($w('#textUserName')) $w('#textUserName').text = "Welcome, Guest!";
         console.log("Guest menu:", filtered.map(i => i.label));
-        console.log("Menu labels:", items.map(i => `"${i.label}"`).join(", "));
-        return; // exit early
+        return;
     }
 
     // ---- Logged in ----
     try {
-        const member = await wixData.get("Members/PrivateMembersData", user.id);
+        const member = wixData.get("Members/PrivateMembersData", user.id);
         const email = member.loginEmail;
         const name = member.name || member.nickname || email;
 
         if (email === webmasterEmail) {
-            // Webmaster sees all
-            $w('#textUserName').text = `Welcome back, WebMaster Ian`;
-            siteMenu.items = items; // show all
+            // Webmaster sees everything
+            if ($w('#textUserName')) $w('#textUserName').text = `Welcome back, WebMaster Ian`;
+            siteMenu.items = items;
             console.log("Webmaster menu:", items.map(i => i.label));
-            console.log("Menu labels:", items.map(i => `"${i.label}"`).join(", "));
         } else {
-            // Regular member hides Admin
-            const filtered = items.filter(item => !memberExclude.includes(item.label));
+            // Regular member — hide only Admin
+            const filtered = safeFilter(items, memberExclude);
             siteMenu.items = filtered;
-            $w('#textUserName').text = `Welcome back, ${name}!`;
+            if ($w('#textUserName')) $w('#textUserName').text = `Welcome back, ${name}!`;
             console.log("Member menu:", filtered.map(i => i.label));
-            console.log("Menu labels:", items.map(i => `"${i.label}"`).join(", "));
         }
     } catch (err) {
         console.error("Error getting member data:", err);
-        const filtered = items.filter(item => !guestExclude.includes(item.label));
+        const filtered = safeFilter(items, guestExclude);
         siteMenu.items = filtered;
-        $w('#textUserName').text = "Welcome!";
+        if ($w('#textUserName')) $w('#textUserName').text = "Welcome!";
         console.log("Fallback guest menu:", filtered.map(i => i.label));
-        console.log("Menu labels:", items.map(i => `"${i.label}"`).join(", "));
     }
 });
