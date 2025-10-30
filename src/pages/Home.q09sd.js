@@ -21,6 +21,17 @@ import wixWindow from 'wix-window';
 $w.onReady(async function () {
     const user = wixUsers.currentUser;
 
+    if (wixWindow.formFactor === "Mobile") {
+        // Hide specific elements for mobile
+        $w('#homeMovingLayer').hide();
+        $w('#textUserName').hide();
+        //$w('#textUserName').collapse();
+
+        console.log("Mobile device detected — elements hidden");
+    } else {
+        console.log("Desktop or tablet — all visible");
+    }
+
     // Get current site menu items
     let items = $w('#siteMenu1').items;
     let webmasterItems = $w('#siteMenu1').items;
@@ -108,16 +119,7 @@ $w.onReady(async function () {
         $w('#siteMenu1').items = items;
     }
 
-    if (wixWindow.formFactor === "Mobile") {
-        // Hide specific elements for mobile
-        $w('#homeMovingLayer').hide();
-        $w('#textUserName').hide();
-        //$w('#textUserName').collapse();
 
-        console.log("Mobile device detected — elements hidden");
-    } else {
-        console.log("Desktop or tablet — all visible");
-    }
 });
 //second attempt below
 //
