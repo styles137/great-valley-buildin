@@ -42,6 +42,7 @@ $w.onReady(async function () {
             if (member.loginEmail == 'ibarwick@me.com') {
                 // Try to find the most relevant name field
                 const name = member.name || member.nickname || member.loginEmail;
+                items = items.filter(item => item.label !== "projects");
                 $w('#textUserName').text = `Welcome back, WebMaster Ian`;
             }
             else if (member) {
