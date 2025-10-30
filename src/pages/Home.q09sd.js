@@ -111,7 +111,8 @@ $w.onReady(async function () {
     if (wixWindow.formFactor === "Mobile") {
         // Hide specific elements for mobile
         $w('#homeMovingLayer').hide();
-        $w('#homeMovingLayer').collapse();
+        $w('#textUserName').hide();
+        //$w('#textUserName').collapse();
 
         console.log("Mobile device detected — elements hidden");
     } else {
