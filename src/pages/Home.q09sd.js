@@ -13,91 +13,63 @@
 // });
 
 //If you want to hide a page like "Dashboard" only for guests:
+//second attempt below
+// 
+
+//Try2
 import wixUsers from 'wix-users';
 import wixData from 'wix-data';
-import { itemVariants } from 'wix-restaurants.v2';
+import wixWindow from 'wix-window';
+import wixLocation from 'wix-location';
 
 $w.onReady(async function () {
+    // Wait for page + menu to fully load
+    await wixWindow.waitForViewportEnter();
+
+    const siteMenu = $w('#siteMenu1');
+    let items = siteMenu.items; // always fresh
     const user = wixUsers.currentUser;
 
-    // Get current site menu items
-    let items = $w('#siteMenu1').items;
-    let webmasterItems = $w('#siteMenu1').items;
-    console.log("Items:", items);
+    console.log("Original Menu Items:", items.map(i => i.label));
 
-    // Filter out one of them (e.g., hide "Admin")
-    //items = items.filter(item => item.label !== "Projects");
-    //items = items.filter(item => item.label !== "Admin");
+    // Define what each user type should not see
+    const guestExclude = ["Admin", "Projects", "About"];
+    const memberExclude = ["Admin"]; // regular members hide Admin
+    const webmasterEmail = "ibarwick@me.com"; // your admin email
 
-    console.log("Items:", items);
-    // Apply back to the site menu
-    //$w('#siteMenu1').items = items;
-
-
-    //Exclude viewing these pages
-    const exclude = ["Admin", "Home", "Projects", "About", "Fog", "Clouds", "Net", "Waves", "Wonts"];
-
-    if (user.loggedIn) {
-        const userId = user.id;
-
-        try {
-            // "Members/PrivateMembersData" is a special built-in collection
-            const member = await wixData.get("Members/PrivateMembersData", userId);
-            console.log("Results:", member.name, member.nickname, member.loginEmail);
-            if (member.loginEmail == 'ibarwick@me.com') {
-                // Try to find the most relevant name field
-                const name = member.name || member.nickname || member.loginEmail;
-                //items = items.filter(item => item.label !== "projects");
-                console.log("Items1:", items);
-                $w('#textUserName').text = `Welcome back, WebMaster Ian`;
-                $w('#siteMenu1').items = items;
-            }
-            else if (member) {
-                // Try to find the most relevant name field
-                const name = member.name || member.nickname || member.loginEmail;
-                $w('#textUserName').text = `Welcome back, ${name}!`;
-                // Filter out one of them (e.g., hide "Admin")
-                // items = items.filter(item => item.label !== "Admin");
-                // items = items.filter(item => item.label !== "home");
-                // items = items.filter(item => item.label !== "fog");
-                items = items.filter(item => item.label !== "Projects");
-                console.log("Items2:", items);
-                //items = items.filter(item => !exclude.includes(item.label));
-                // Apply back to the site menu
-                $w('#siteMenu1').items = items;
-            } else {
-                $w('#textUserName').text = "Welcome back!";
-                // Filter out one of them (e.g., hide "Admin")
-                // items = items.filter(item => item.label !== "Admin");
-                // items = items.filter(item => item.label !== "home");
-                // items = items.filter(item => item.label !== "fog");
-                items = items.filter(item => item.label !== "Projects");
-                console.log("Items3:", items);
-                //items = items.filter(item => !exclude.includes(item.label));
-                // Apply back to the site menu
-                $w('#siteMenu1').items = items;
-            }
-        } catch (err) {
-            console.error("Error getting member data:", err);
-            $w('#textUserName').text = "Welcome!";
-            // items = items.filter(item => item.label !== "Admin");
-            // items = items.filter(item => item.label !== "home");
-            // items = items.filter(item => item.label !== "fog");
-            items = items.filter(item => item.label !== "Projects");
-            console.log("Items4:", items);
-            //items = items.filter(item => !exclude.includes(item.label));
-            // Apply back to the site menu
-            $w('#siteMenu1').items = items;
-        }
-    } else {
+    // ---- Guest ----
+    if (!user.loggedIn) {
+        console.log("Guest detected — filtering menu...");
+        const filtered = items.filter(item => !guestExclude.includes(item.label));
+        siteMenu.items = filtered;
         $w('#textUserName').text = "Welcome, Guest!";
-        // items = items.filter(item => item.label !== "Admin");
-        // items = items.filter(item => item.label !== "home");
-        // items = items.filter(item => item.label !== "fog");
-        items = items.filter(item => item.label !== "Projects");
-        console.log("Items5:", items);
-        //items = items.filter(item => !exclude.includes(item.label));
-        // Apply back to the site menu
-        $w('#siteMenu1').items = items;
+        console.log("Guest menu:", filtered.map(i => i.label));
+        return; // exit early
+    }
+
+    // ---- Logged in ----
+    try {
+        const member = await wixData.get("Members/PrivateMembersData", user.id);
+        const email = member.loginEmail;
+        const name = member.name || member.nickname || email;
+
+        if (email === webmasterEmail) {
+            // Webmaster sees all
+            $w('#textUserName').text = `Welcome back, WebMaster Ian`;
+            siteMenu.items = items; // show all
+            console.log("Webmaster menu:", items.map(i => i.label));
+        } else {
+            // Regular member hides Admin
+            const filtered = items.filter(item => !memberExclude.includes(item.label));
+            siteMenu.items = filtered;
+            $w('#textUserName').text = `Welcome back, ${name}!`;
+            console.log("Member menu:", filtered.map(i => i.label));
+        }
+    } catch (err) {
+        console.error("Error getting member data:", err);
+        const filtered = items.filter(item => !guestExclude.includes(item.label));
+        siteMenu.items = filtered;
+        $w('#textUserName').text = "Welcome!";
+        console.log("Fallback guest menu:", filtered.map(i => i.label));
     }
 });
