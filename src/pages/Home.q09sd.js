@@ -44,6 +44,7 @@ $w.onReady(async function () {
         siteMenu.items = filtered;
         $w('#textUserName').text = "Welcome, Guest!";
         console.log("Guest menu:", filtered.map(i => i.label));
+        console.log("Menu labels:", items.map(i => `"${i.label}"`).join(", "));
         return; // exit early
     }
 
@@ -58,12 +59,14 @@ $w.onReady(async function () {
             $w('#textUserName').text = `Welcome back, WebMaster Ian`;
             siteMenu.items = items; // show all
             console.log("Webmaster menu:", items.map(i => i.label));
+            console.log("Menu labels:", items.map(i => `"${i.label}"`).join(", "));
         } else {
             // Regular member hides Admin
             const filtered = items.filter(item => !memberExclude.includes(item.label));
             siteMenu.items = filtered;
             $w('#textUserName').text = `Welcome back, ${name}!`;
             console.log("Member menu:", filtered.map(i => i.label));
+            console.log("Menu labels:", items.map(i => `"${i.label}"`).join(", "));
         }
     } catch (err) {
         console.error("Error getting member data:", err);
@@ -71,5 +74,6 @@ $w.onReady(async function () {
         siteMenu.items = filtered;
         $w('#textUserName').text = "Welcome!";
         console.log("Fallback guest menu:", filtered.map(i => i.label));
+        console.log("Menu labels:", items.map(i => `"${i.label}"`).join(", "));
     }
 });
