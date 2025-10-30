@@ -21,7 +21,9 @@ import wixWindow from 'wix-window';
 $w.onReady(async function () {
     const user = wixUsers.currentUser;
 
-    if (wixWindow.formFactor === "Mobile") {
+    const isMobileDevice = wixWindow.formFactor === "Mobile" || /Mobi|Android/i.test(navigator.userAgent);
+
+    if (isMobileDevice) {
         // Hide specific elements for mobile
         $w('#homeMovingLayer').hide();
         $w('#textUserName').hide();
@@ -71,13 +73,13 @@ $w.onReady(async function () {
                 console.log("Items1:", items);
                 //$w('#textUserName').style.color = "#ffffff";
                 //$w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
-                $w('#textUserName').text = `Welcome back, WebMaster Ian`;
+                //$w('#textUserName').text = `Welcome back, WebMaster Ian`;
                 $w('#siteMenu1').items = webmasterItems;
             }
             else if (member) {
                 // Try to find the most relevant name field
                 const name = member.name || member.nickname || member.loginEmail;
-                $w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
+                //$w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
                 //$w('#textUserName').style.color = "#ffffff";
                 //$w('#textUserName').text = `Welcome back, ${name}!`;
                 // Filter out one of them (e.g., hide "Admin")
@@ -90,7 +92,7 @@ $w.onReady(async function () {
                 // Apply back to the site menu
                 $w('#siteMenu1').items = items;
             } else {
-                $w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
+                //$w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
                 //$w('#textUserName').style.color = "#ffffff";
                 //$w('#textUserName').text = "Welcome back!";
                 // Filter out one of them (e.g., hide "Admin")
@@ -105,7 +107,7 @@ $w.onReady(async function () {
             }
         } catch (err) {
             console.error("Error getting member data:", err);
-            $w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
+            //$w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
             //$w('#textUserName').style.color = "#ffffff";
             //$w('#textUserName').text = "Welcome!";
             // items = items.filter(item => item.label !== "Admin");
@@ -118,7 +120,7 @@ $w.onReady(async function () {
             $w('#siteMenu1').items = items;
         }
     } else {
-        $w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
+        //$w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
         //$w('#textUserName').style.color = "#ffffff";
         //$w('#textUserName').text = "Welcome, Guest!";
         // items = items.filter(item => item.label !== "Admin");
