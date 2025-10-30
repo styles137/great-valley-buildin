@@ -47,6 +47,7 @@ $w.onReady(async function () {
                 // Try to find the most relevant name field
                 const name = member.name || member.nickname || member.loginEmail;
                 items = items.filter(item => item.label !== "projects");
+                console.log("Items1:", items);
                 $w('#textUserName').text = `Welcome back, WebMaster Ian`;
             }
             else if (member) {
@@ -58,6 +59,7 @@ $w.onReady(async function () {
                 // items = items.filter(item => item.label !== "home");
                 // items = items.filter(item => item.label !== "fog");
                 items = items.filter(item => item.label !== "Projects");
+                console.log("Items2:", items);
                 //items = items.filter(item => !exclude.includes(item.label));
                 // Apply back to the site menu
                 $w('#siteMenu1').items = items;
@@ -68,6 +70,7 @@ $w.onReady(async function () {
                 // items = items.filter(item => item.label !== "home");
                 // items = items.filter(item => item.label !== "fog");
                 items = items.filter(item => item.label !== "Projects");
+                console.log("Items3:", items);
                 //items = items.filter(item => !exclude.includes(item.label));
                 // Apply back to the site menu
                 $w('#siteMenu1').items = items;
@@ -79,6 +82,7 @@ $w.onReady(async function () {
             // items = items.filter(item => item.label !== "home");
             // items = items.filter(item => item.label !== "fog");
             items = items.filter(item => item.label !== "Projects");
+            console.log("Items4:", items);
             //items = items.filter(item => !exclude.includes(item.label));
             // Apply back to the site menu
             $w('#siteMenu1').items = items;
@@ -89,6 +93,7 @@ $w.onReady(async function () {
         // items = items.filter(item => item.label !== "home");
         // items = items.filter(item => item.label !== "fog");
         items = items.filter(item => item.label !== "Projects");
+        console.log("Items5:", items);
         //items = items.filter(item => !exclude.includes(item.label));
         // Apply back to the site menu
         $w('#siteMenu1').items = items;
