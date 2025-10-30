@@ -28,6 +28,7 @@ $w.onReady(async function () {
     const user = wixUsers.currentUser;
 
     console.log("Original Menu Items:", items.map(i => i.label));
+    console.log("Menu labels (with quotes):", items.map(i => `"${i.label}"`).join(", "));
 
     // Define exclusions
     const guestExclude = ["Admin", "Projects", "About"];
