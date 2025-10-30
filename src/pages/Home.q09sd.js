@@ -67,14 +67,14 @@ $w.onReady(async function () {
                 // Try to find the most relevant name field
                 const name = member.name || member.nickname || member.loginEmail;
                 console.log("Items1:", items);
-                $w('#textUserName').style.color = "ffffff";
+                $w('#textUserName').style.color = "#ffffff";
                 $w('#textUserName').text = `Welcome back, WebMaster Ian`;
                 $w('#siteMenu1').items = webmasterItems;
             }
             else if (member) {
                 // Try to find the most relevant name field
                 const name = member.name || member.nickname || member.loginEmail;
-                $w('#textUserName').style.color = "ffffff";
+                $w('#textUserName').style.color = "#ffffff";
                 $w('#textUserName').text = `Welcome back, ${name}!`;
                 // Filter out one of them (e.g., hide "Admin")
                 // items = items.filter(item => item.label !== "Admin");
@@ -86,7 +86,7 @@ $w.onReady(async function () {
                 // Apply back to the site menu
                 $w('#siteMenu1').items = items;
             } else {
-                $w('#textUserName').style.color = "ffffff";
+                $w('#textUserName').style.color = "#ffffff";
                 $w('#textUserName').text = "Welcome back!";
                 // Filter out one of them (e.g., hide "Admin")
                 // items = items.filter(item => item.label !== "Admin");
@@ -100,7 +100,7 @@ $w.onReady(async function () {
             }
         } catch (err) {
             console.error("Error getting member data:", err);
-            $w('#textUserName').style.color = "ffffff";
+            $w('#textUserName').style.color = "#ffffff";
             $w('#textUserName').text = "Welcome!";
             // items = items.filter(item => item.label !== "Admin");
             // items = items.filter(item => item.label !== "home");
@@ -112,7 +112,7 @@ $w.onReady(async function () {
             $w('#siteMenu1').items = items;
         }
     } else {
-        $w('#textUserName').style.color = "ffffff";
+        $w('#textUserName').style.color = "#ffffff";
         $w('#textUserName').text = "Welcome, Guest!";
         // items = items.filter(item => item.label !== "Admin");
         // items = items.filter(item => item.label !== "home");
