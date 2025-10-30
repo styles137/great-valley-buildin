@@ -25,6 +25,7 @@ $w.onReady(async function () {
 
     // Filter out one of them (e.g., hide "Admin")
     items = items.filter(item => item.label !== "Admin");
+    items = items.filter(item => item.label !== "projects");
     // Apply back to the site menu
     $w('#siteMenu1').items = items;
 
