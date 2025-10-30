@@ -29,7 +29,8 @@ $w.onReady(async function () {
 
         console.log("Mobile device detected — elements hidden");
     } else {
-        $w('#textUserName').style.color = "#ffffff";
+        //$w('#textUserName').style.color = "#ffffff";
+        $w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
         console.log("Desktop or tablet — all visible");
     }
 
