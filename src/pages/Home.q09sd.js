@@ -25,7 +25,7 @@ $w.onReady(async function () {
     console.log("Items:", items);
 
     // Filter out one of them (e.g., hide "Admin")
-    items = items.filter(item => item.label !== "Projects");
+    //items = items.filter(item => item.label !== "Projects");
     items = items.filter(item => item.label !== "Admin");
 
     console.log("Items:", items);
@@ -34,7 +34,7 @@ $w.onReady(async function () {
 
 
     //Exclude viewing these pages
-    const exclude = ["Admin", "home", "projects", "about", "fog", "clouds", "net", "waves", "fonts"];
+    const exclude = ["Admin", "Home", "Projects", "About", "Fog", "Clouds", "Net", "Waves", "Wonts"];
 
     if (user.loggedIn) {
         const userId = user.id;
@@ -57,7 +57,7 @@ $w.onReady(async function () {
                 // items = items.filter(item => item.label !== "Admin");
                 // items = items.filter(item => item.label !== "home");
                 // items = items.filter(item => item.label !== "fog");
-                items = items.filter(item => item.label !== "projects");
+                items = items.filter(item => item.label !== "Projects");
                 //items = items.filter(item => !exclude.includes(item.label));
                 // Apply back to the site menu
                 $w('#siteMenu1').items = items;
@@ -67,7 +67,7 @@ $w.onReady(async function () {
                 // items = items.filter(item => item.label !== "Admin");
                 // items = items.filter(item => item.label !== "home");
                 // items = items.filter(item => item.label !== "fog");
-                items = items.filter(item => item.label !== "projects");
+                items = items.filter(item => item.label !== "Projects");
                 //items = items.filter(item => !exclude.includes(item.label));
                 // Apply back to the site menu
                 $w('#siteMenu1').items = items;
@@ -78,7 +78,7 @@ $w.onReady(async function () {
             // items = items.filter(item => item.label !== "Admin");
             // items = items.filter(item => item.label !== "home");
             // items = items.filter(item => item.label !== "fog");
-            items = items.filter(item => item.label !== "projects");
+            items = items.filter(item => item.label !== "Projects");
             //items = items.filter(item => !exclude.includes(item.label));
             // Apply back to the site menu
             $w('#siteMenu1').items = items;
@@ -88,7 +88,7 @@ $w.onReady(async function () {
         // items = items.filter(item => item.label !== "Admin");
         // items = items.filter(item => item.label !== "home");
         // items = items.filter(item => item.label !== "fog");
-        items = items.filter(item => item.label !== "projects");
+        items = items.filter(item => item.label !== "Projects");
         //items = items.filter(item => !exclude.includes(item.label));
         // Apply back to the site menu
         $w('#siteMenu1').items = items;
