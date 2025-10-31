@@ -23,6 +23,24 @@ $w.onReady(async function () {
 
     const isMobileDevice = wixWindow.formFactor === "Mobile" || /Mobi|Android/i.test(navigator.userAgent);
 
+    // Create a new <script> tag
+    const gaScript = document.createElement("script");
+    gaScript.async = true;
+    gaScript.src = "https://www.googletagmanager.com/gtag/js?id=G-N9ZWRC6SQ2";
+    document.head.appendChild(gaScript);
+
+    // Initialize GA once the script is loaded
+    gaScript.onload = () => {
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { window.dataLayer.push(arguments); }
+        window.gtag = gtag; // make it global
+
+        gtag("js", new Date());
+        gtag("config", "G-N9ZWRC6SQ2");
+
+        console.log("Google Analytics initialized");
+    };
+
     if (isMobileDevice) {
         // Hide specific elements for mobile
         $w('#homeMovingLayer').hide();
