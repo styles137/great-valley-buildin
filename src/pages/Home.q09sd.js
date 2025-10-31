@@ -43,7 +43,7 @@ $w.onReady(async function () {
 
     // Filter out one of them (e.g., hide "Admin")
     // items = items.filter(item => item.label !== "Home");
-    // items = items.filter(item => item.label !== "Projects");
+    items = items.filter(item => item.label !== "Projects");
     // items = items.filter(item => item.label !== "About");
     // items = items.filter(item => item.label !== "Fog");
     // items = items.filter(item => item.label !== "Net");
