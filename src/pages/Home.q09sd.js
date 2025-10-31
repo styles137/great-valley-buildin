@@ -43,7 +43,7 @@ $w.onReady(async function () {
 
     // Filter out one of them (e.g., hide "Admin")
     // items = items.filter(item => item.label !== "Home");
-    items = items.filter(item => item.label !== "Projects");
+    //items = items.filter(item => item.label !== "Projects");
     // items = items.filter(item => item.label !== "About");
     // items = items.filter(item => item.label !== "Fog");
     // items = items.filter(item => item.label !== "Net");
@@ -51,14 +51,22 @@ $w.onReady(async function () {
     // items = items.filter(item => item.label !== "Clouds");
     // items = items.filter(item => item.label !== "Net");
     // items = items.filter(item => item.label !== "Admin");
+    //Exclude viewing these pages
+    const exclude = ["Admin", "Home", "Projects", "About", "Fog", "Clouds", "Net", "Waves", "Wonts"];
+
+    const siteMenu = $w('#siteMenu1');
+    setTimeout(() => {
+        let items = siteMenu.items;
+        const filtered = items.filter(item => !exclude.includes(item.label.trim().toLowerCase()));
+        siteMenu.items = filtered;
+    }, 300);
 
     console.log("Items:", items);
     // Apply back to the site menu
     $w('#siteMenu1').items = items;
 
 
-    //Exclude viewing these pages
-    const exclude = ["Admin", "Home", "Projects", "About", "Fog", "Clouds", "Net", "Waves", "Wonts"];
+
 
     if (user.loggedIn) {
         const userId = user.id;
