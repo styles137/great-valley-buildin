@@ -74,7 +74,7 @@ $w.onReady(async function () {
                 //$w('#textUserName').style.color = "#ffffff";
                 //$w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
                 //$w('#textUserName').text = `Welcome back, WebMaster Ian`;
-                $w('#siteMenu1').items = webmasterItems;
+                //$w('#siteMenu1').items = webmasterItems;
             }
             else if (member) {
                 // Try to find the most relevant name field
@@ -90,7 +90,7 @@ $w.onReady(async function () {
                 console.log("Items2:", items);
                 //items = items.filter(item => !exclude.includes(item.label));
                 // Apply back to the site menu
-                $w('#siteMenu1').items = items;
+                //$w('#siteMenu1').items = items;
             } else {
                 //$w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
                 //$w('#textUserName').style.color = "#ffffff";
@@ -103,7 +103,7 @@ $w.onReady(async function () {
                 console.log("Items3:", items);
                 //items = items.filter(item => !exclude.includes(item.label));
                 // Apply back to the site menu
-                $w('#siteMenu1').items = items;
+                //$w('#siteMenu1').items = items;
             }
         } catch (err) {
             console.error("Error getting member data:", err);
@@ -117,7 +117,7 @@ $w.onReady(async function () {
             console.log("Items4:", items);
             //items = items.filter(item => !exclude.includes(item.label));
             // Apply back to the site menu
-            $w('#siteMenu1').items = items;
+            //$w('#siteMenu1').items = items;
         }
     } else {
         //$w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
@@ -130,7 +130,7 @@ $w.onReady(async function () {
         console.log("Items5:", items);
         //items = items.filter(item => !exclude.includes(item.label));
         // Apply back to the site menu
-        $w('#siteMenu1').items = items;
+        //$w('#siteMenu1').items = items;
     }
 
 
