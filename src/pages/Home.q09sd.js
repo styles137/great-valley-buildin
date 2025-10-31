@@ -42,15 +42,15 @@ $w.onReady(async function () {
     console.log("Items:", items);
 
     // Filter out one of them (e.g., hide "Admin")
-    items = items.filter(item => item.label !== "Home");
-    items = items.filter(item => item.label !== "Projects");
-    items = items.filter(item => item.label !== "About");
-    items = items.filter(item => item.label !== "Fog");
-    items = items.filter(item => item.label !== "Net");
-    items = items.filter(item => item.label !== "Waves");
-    items = items.filter(item => item.label !== "Clouds");
-    items = items.filter(item => item.label !== "Net");
-    items = items.filter(item => item.label !== "Admin");
+    // items = items.filter(item => item.label !== "Home");
+    // items = items.filter(item => item.label !== "Projects");
+    // items = items.filter(item => item.label !== "About");
+    // items = items.filter(item => item.label !== "Fog");
+    // items = items.filter(item => item.label !== "Net");
+    // items = items.filter(item => item.label !== "Waves");
+    // items = items.filter(item => item.label !== "Clouds");
+    // items = items.filter(item => item.label !== "Net");
+    // items = items.filter(item => item.label !== "Admin");
 
     console.log("Items:", items);
     // Apply back to the site menu
