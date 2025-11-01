@@ -23,6 +23,24 @@ $w.onReady(async function () {
 
     const isMobileDevice = wixWindow.formFactor === "Mobile" || /Mobi|Android/i.test(navigator.userAgent);
 
+    // Create a new <script> tag
+    const gaScript = document.createElement("script");
+    gaScript.async = true;
+    gaScript.src = "https://www.googletagmanager.com/gtag/js?id=G-N9ZWRC6SQ2";
+    document.head.appendChild(gaScript);
+
+    // Initialize GA once the script is loaded
+    gaScript.onload = () => {
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { window.dataLayer.push(arguments); }
+        window.gtag = gtag; // make it global
+
+        gtag("js", new Date());
+        gtag("config", "G-N9ZWRC6SQ2");
+
+        console.log("Google Analytics initialized");
+    };
+
     if (isMobileDevice) {
         // Hide specific elements for mobile
         $w('#homeMovingLayer').hide();
@@ -42,23 +60,31 @@ $w.onReady(async function () {
     console.log("Items:", items);
 
     // Filter out one of them (e.g., hide "Admin")
-    items = items.filter(item => item.label !== "Home");
-    items = items.filter(item => item.label !== "Projects");
-    items = items.filter(item => item.label !== "About");
-    items = items.filter(item => item.label !== "Fog");
-    items = items.filter(item => item.label !== "Net");
-    items = items.filter(item => item.label !== "Waves");
-    items = items.filter(item => item.label !== "Clouds");
-    items = items.filter(item => item.label !== "Net");
-    items = items.filter(item => item.label !== "Admin");
+    // items = items.filter(item => item.label !== "Home");
+    //items = items.filter(item => item.label !== "Projects");
+    // items = items.filter(item => item.label !== "About");
+    // items = items.filter(item => item.label !== "Fog");
+    // items = items.filter(item => item.label !== "Net");
+    // items = items.filter(item => item.label !== "Waves");
+    // items = items.filter(item => item.label !== "Clouds");
+    // items = items.filter(item => item.label !== "Net");
+    // items = items.filter(item => item.label !== "Admin");
+    //Exclude viewing these pages
+    const exclude = ["Admin", "Home", "Projects", "About", "Fog", "Clouds", "Net", "Waves", "Wonts"];
+
+    const siteMenu = $w('#siteMenu1');
+    setTimeout(() => {
+        let items = siteMenu.items;
+        const filtered = items.filter(item => !exclude.includes(item.label.trim().toLowerCase()));
+        siteMenu.items = filtered;
+    }, 300);
 
     console.log("Items:", items);
     // Apply back to the site menu
     $w('#siteMenu1').items = items;
 
 
-    //Exclude viewing these pages
-    const exclude = ["Admin", "Home", "Projects", "About", "Fog", "Clouds", "Net", "Waves", "Wonts"];
+
 
     if (user.loggedIn) {
         const userId = user.id;
@@ -74,7 +100,7 @@ $w.onReady(async function () {
                 //$w('#textUserName').style.color = "#ffffff";
                 //$w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
                 //$w('#textUserName').text = `Welcome back, WebMaster Ian`;
-                $w('#siteMenu1').items = webmasterItems;
+                //$w('#siteMenu1').items = webmasterItems;
             }
             else if (member) {
                 // Try to find the most relevant name field
@@ -90,7 +116,7 @@ $w.onReady(async function () {
                 console.log("Items2:", items);
                 //items = items.filter(item => !exclude.includes(item.label));
                 // Apply back to the site menu
-                $w('#siteMenu1').items = items;
+                //$w('#siteMenu1').items = items;
             } else {
                 //$w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
                 //$w('#textUserName').style.color = "#ffffff";
@@ -103,7 +129,7 @@ $w.onReady(async function () {
                 console.log("Items3:", items);
                 //items = items.filter(item => !exclude.includes(item.label));
                 // Apply back to the site menu
-                $w('#siteMenu1').items = items;
+                //$w('#siteMenu1').items = items;
             }
         } catch (err) {
             console.error("Error getting member data:", err);
@@ -117,7 +143,7 @@ $w.onReady(async function () {
             console.log("Items4:", items);
             //items = items.filter(item => !exclude.includes(item.label));
             // Apply back to the site menu
-            $w('#siteMenu1').items = items;
+            //$w('#siteMenu1').items = items;
         }
     } else {
         //$w('#textUserName').html = '<p style="color:#ffffff;">Welcome back!</p>';
@@ -130,7 +156,7 @@ $w.onReady(async function () {
         console.log("Items5:", items);
         //items = items.filter(item => !exclude.includes(item.label));
         // Apply back to the site menu
-        $w('#siteMenu1').items = items;
+        //$w('#siteMenu1').items = items;
     }
 
 
