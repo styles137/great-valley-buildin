@@ -5,38 +5,41 @@ import wixWindow from 'wix-window';
 const parallaxConfig = {
     // Slow moving background elements (move slower than scroll)
     slowElements: [
-        { element: '#backgroundImage1', speed: 0.3 },
-        { element: '#backgroundImage2', speed: 0.4 }
+        { element: 'backgroundImage1', speed: 0.3, initialY: 0 },
+        { element: 'backgroundImage2', speed: 0.4, initialY: 0 }
     ],
     // Medium speed elements
     mediumElements: [
-        { element: '#middleLayer1', speed: 0.6 },
-        { element: '#middleLayer2', speed: 0.7 }
+        { element: 'middleLayer1', speed: 0.6, initialY: 0 },
+        { element: 'middleLayer2', speed: 0.7, initialY: 0 }
     ],
     // Fast moving foreground elements (move faster than scroll)
     fastElements: [
-        { element: '#foregroundElement1', speed: 1.2 },
-        { element: '#foregroundElement2', speed: 1.4 }
+        { element: 'foregroundElement1', speed: 1.2, initialY: 0 },
+        { element: 'foregroundElement2', speed: 1.4, initialY: 0 }
     ],
     // Fade in/out elements based on scroll
     fadeElements: [
-        { element: '#fadeBox1', startFade: 0, endFade: 500 },
-        { element: '#fadeBox2', startFade: 300, endFade: 800 }
+        { element: 'fadeBox1', startFade: 0, endFade: 500 },
+        { element: 'fadeBox2', startFade: 300, endFade: 800 }
     ],
     // Scale elements on scroll
     scaleElements: [
-        { element: '#scaleImage1', startScale: 1, endScale: 1.2, scrollRange: 1000 }
+        { element: 'scaleImage1', startScale: 1, endScale: 1.2, scrollRange: 1000 }
     ]
 };
 
+let lastScrollY = 0;
+
 // Main parallax handler
 $w.onReady(function () {
-    // Initialize all elements
+    console.log("Parallax script loaded");
+
+    // Store initial positions
     initializeParallax();
 
-    // Add scroll listener
-    wixWindow.scrollTo(0, 0);
-    $w('#page').onScroll((event) => {
+    // Add scroll listener using wixWindow
+    wixWindow.onScroll((event) => {
         handleParallax(event.scrollY);
     });
 
@@ -48,7 +51,7 @@ $w.onReady(function () {
  * Initialize parallax elements with starting positions
  */
 function initializeParallax() {
-    // Set initial transforms for all parallax elements
+    // Store initial Y positions for all parallax elements
     const allElements = [
         ...parallaxConfig.slowElements,
         ...parallaxConfig.mediumElements,
@@ -57,9 +60,23 @@ function initializeParallax() {
 
     allElements.forEach(config => {
         try {
-            $w(config.element).show();
+            const element = $w(`#${config.element}`);
+            config.initialY = element.y;
+            console.log(`Initialized ${config.element} at Y: ${config.initialY}`);
         } catch (e) {
-            console.log(`Element ${config.element} not found`);
+            console.log(`Element #${config.element} not found - skipping`);
+        }
+    });
+
+    // Initialize scale elements
+    parallaxConfig.scaleElements.forEach(config => {
+        try {
+            const element = $w(`#${config.element}`);
+            config.initialWidth = element.width;
+            config.initialHeight = element.height;
+            console.log(`Initialized scale for ${config.element}`);
+        } catch (e) {
+            console.log(`Scale element #${config.element} not found - skipping`);
         }
     });
 }
@@ -71,70 +88,80 @@ function initializeParallax() {
 function handleParallax(scrollY) {
     // Handle slow moving elements
     parallaxConfig.slowElements.forEach(config => {
-        moveElement(config.element, scrollY, config.speed);
+        moveElement(config, scrollY);
     });
 
     // Handle medium speed elements
     parallaxConfig.mediumElements.forEach(config => {
-        moveElement(config.element, scrollY, config.speed);
+        moveElement(config, scrollY);
     });
 
     // Handle fast moving elements
     parallaxConfig.fastElements.forEach(config => {
-        moveElement(config.element, scrollY, config.speed);
+        moveElement(config, scrollY);
     });
 
     // Handle fade effects
     parallaxConfig.fadeElements.forEach(config => {
-        fadeElement(config.element, scrollY, config.startFade, config.endFade);
+        fadeElement(config, scrollY);
     });
 
     // Handle scale effects
     parallaxConfig.scaleElements.forEach(config => {
-        scaleElement(config.element, scrollY, config.startScale, config.endScale, config.scrollRange);
+        scaleElement(config, scrollY);
     });
+
+    lastScrollY = scrollY;
 }
 
 /**
  * Move element based on scroll position and speed
- * @param {string} selector - Element selector
+ * @param {object} config - Element configuration object
  * @param {number} scrollY - Current scroll position
- * @param {number} speed - Movement speed multiplier
  */
-function moveElement(selector, scrollY, speed) {
+function moveElement(config, scrollY) {
     try {
-        const element = $w(selector);
-        const movement = scrollY * speed;
+        const element = $w(`#${config.element}`);
 
-        // Apply transform for smooth parallax
-        element.y = element.y + (movement - (element.customData || 0));
-        element.customData = movement;
+        // Calculate movement based on speed
+        // Speed < 1 = slower than scroll (background)
+        // Speed > 1 = faster than scroll (foreground)
+        const movement = scrollY * (1 - config.speed);
+        const newY = config.initialY + movement;
+
+        element.y = newY;
 
     } catch (e) {
-        // Element not found or error occurred
+        // Element not found - silently skip
     }
 }
 
 /**
  * Fade element based on scroll position
- * @param {string} selector - Element selector
+ * @param {object} config - Element configuration with startFade and endFade
  * @param {number} scrollY - Current scroll position
- * @param {number} startFade - Scroll position to start fading
- * @param {number} endFade - Scroll position to complete fade
  */
-function fadeElement(selector, scrollY, startFade, endFade) {
+function fadeElement(config, scrollY) {
     try {
-        const element = $w(selector);
+        const element = $w(`#${config.element}`);
 
-        if (scrollY < startFade) {
-            element.style.opacity = "1";
-        } else if (scrollY > endFade) {
-            element.style.opacity = "0";
+        if (scrollY < config.startFade) {
+            element.hide();
+        } else if (scrollY > config.endFade) {
+            element.hide();
         } else {
-            const range = endFade - startFade;
-            const progress = (scrollY - startFade) / range;
+            element.show();
+            const range = config.endFade - config.startFade;
+            const progress = (scrollY - config.startFade) / range;
             const opacity = 1 - progress;
-            element.style.opacity = opacity.toString();
+
+            // Wix doesn't support opacity directly, so we hide/show
+            // For smoother fading, use Wix's built-in effects in the editor
+            if (opacity < 0.5) {
+                element.hide();
+            } else {
+                element.show();
+            }
         }
     } catch (e) {
         // Element not found
@@ -143,29 +170,18 @@ function fadeElement(selector, scrollY, startFade, endFade) {
 
 /**
  * Scale element based on scroll position
- * @param {string} selector - Element selector
+ * @param {object} config - Element configuration
  * @param {number} scrollY - Current scroll position
- * @param {number} startScale - Starting scale value
- * @param {number} endScale - Ending scale value
- * @param {number} scrollRange - Scroll distance for full scale effect
  */
-function scaleElement(selector, scrollY, startScale, endScale, scrollRange) {
+function scaleElement(config, scrollY) {
     try {
-        const element = $w(selector);
-        const progress = Math.min(scrollY / scrollRange, 1);
-        const scale = startScale + (endScale - startScale) * progress;
+        const element = $w(`#${config.element}`);
+        const progress = Math.min(scrollY / config.scrollRange, 1);
+        const scale = config.startScale + (config.endScale - config.startScale) * progress;
 
-        // Note: Wix has limited transform support, this uses size manipulation
-        const originalWidth = element.customWidth || element.width;
-        const originalHeight = element.customHeight || element.height;
-
-        if (!element.customWidth) {
-            element.customWidth = element.width;
-            element.customHeight = element.height;
-        }
-
-        element.width = originalWidth * scale;
-        element.height = originalHeight * scale;
+        // Scale using width and height
+        element.width = config.initialWidth * scale;
+        element.height = config.initialHeight * scale;
 
     } catch (e) {
         // Element not found
@@ -173,48 +189,75 @@ function scaleElement(selector, scrollY, startScale, endScale, scrollRange) {
 }
 
 /**
- * Alternative parallax using Wix Effects API (if available)
- * Add this to elements directly in the Wix Editor
+ * Smooth scroll to section
+ * Call this from button clicks: onClick event -> smoothScrollToElement('targetElementId')
+ * @param {string} elementId - Target element ID (without #)
  */
-export function setupWixParallaxEffects() {
-    // For elements with Wix built-in effects:
-    // 1. Select element in Wix Editor
-    // 2. Click "Add Effect" (magic wand icon)
-    // 3. Choose "Parallax" or "Reveal"
-    // 4. Customize speed and direction
-
-    console.log("Use Wix Editor effects panel for additional parallax options");
-}
-
-/**
- * Smooth scroll to section (bonus feature)
- * @param {string} elementId - Target element ID
- */
-export function smoothScrollTo(elementId) {
-    const element = $w(elementId);
-    element.scrollTo();
-}
-
-/**
- * Advanced: Parallax based on element position in viewport
- */
-export function viewportParallax() {
-    $w('#page').onScroll(() => {
-        const viewportHeight = wixWindow.viewportRect.height;
-
-        parallaxConfig.slowElements.forEach(config => {
-            try {
-                const element = $w(config.element);
-                const rect = element.getBoundingClientRect();
-                const elementCenter = rect.top + (rect.height / 2);
-                const viewportCenter = viewportHeight / 2;
-                const distance = elementCenter - viewportCenter;
-                const movement = distance * (config.speed - 1);
-
-                element.style.transform = `translateY(${movement}px)`;
-            } catch (e) {
-                // Element not found
-            }
+export function smoothScrollToElement(elementId) {
+    try {
+        const element = $w(`#${elementId}`);
+        wixWindow.scrollTo(0, element.y - 100, {
+            duration: 800
         });
+    } catch (e) {
+        console.log(`Cannot scroll to #${elementId}`);
+    }
+}
+
+/**
+ * Enable parallax on specific element
+ * @param {string} elementId - Element ID without #
+ * @param {number} speed - Parallax speed (0.1 to 2.0)
+ */
+export function addParallaxToElement(elementId, speed) {
+    try {
+        const element = $w(`#${elementId}`);
+        const initialY = element.y;
+
+        parallaxConfig.mediumElements.push({
+            element: elementId,
+            speed: speed,
+            initialY: initialY
+        });
+
+        console.log(`Added parallax to #${elementId} with speed ${speed}`);
+    } catch (e) {
+        console.log(`Cannot add parallax to #${elementId}`);
+    }
+}
+
+/**
+ * Disable parallax effect
+ */
+export function disableParallax() {
+    // Clear all configs
+    parallaxConfig.slowElements = [];
+    parallaxConfig.mediumElements = [];
+    parallaxConfig.fastElements = [];
+    parallaxConfig.fadeElements = [];
+    parallaxConfig.scaleElements = [];
+
+    console.log("Parallax disabled");
+}
+
+/**
+ * Reset all elements to original positions
+ */
+export function resetParallax() {
+    const allElements = [
+        ...parallaxConfig.slowElements,
+        ...parallaxConfig.mediumElements,
+        ...parallaxConfig.fastElements
+    ];
+
+    allElements.forEach(config => {
+        try {
+            const element = $w(`#${config.element}`);
+            element.y = config.initialY;
+        } catch (e) {
+            // Element not found
+        }
     });
+
+    console.log("Parallax positions reset");
 }
