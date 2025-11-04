@@ -1,228 +1,260 @@
-// Import Wix modules
-import wixWindowFrontend from 'wix-window-frontend';
+// Wix Velo Parallax Effect
+// Compatible with Wix Editor - Uses native scroll events
 
-// Configuration object - REPLACE these with your actual element IDs from Wix Editor
+// ====== CONFIGURATION ======
+// Add your element IDs here (without the # symbol)
 const parallaxConfig = {
-    // Slow moving background elements (move slower than scroll)
-    slowElements: [
-        { element: 'backgroundImage1', speed: 0.3 },
-        { element: 'backgroundImage2', speed: 0.4 }
-    ],
-    // Medium speed elements
-    mediumElements: [
-        { element: 'middleLayer1', speed: 0.6 },
-        { element: 'middleLayer2', speed: 0.7 }
-    ],
-    // Fast moving foreground elements (move faster than scroll)
-    fastElements: [
-        { element: 'foregroundElement1', speed: 1.2 },
-        { element: 'foregroundElement2', speed: 1.4 }
+    // Example elements - replace with your actual element IDs:
+    elements: [
+        { id: 'backgroundImage1', speed: 0.3 },        // Slow background
+        { id: 'backgroundImage2', speed: 0.3 },        // Slow background
+        { id: 'middleLayer1', speed: 0.6 },       // Medium speed
+        { id: 'middleLayer2', speed: 0.6 },       // Medium speed
+        { id: 'foregroundElement1', speed: 0.8 },        // Faster foreground
+        { id: 'foregroundElement2', speed: 0.8 },        // Faster foreground
     ]
 };
 
-// Store initial data
-let initialPositions = new Map();
-let ticking = false;
+// Storage for element data
+let elementData = [];
+let isScrolling = false;
 
-// Main initialization
+// Initialize on page ready
 $w.onReady(function () {
-    console.log("✓ Parallax script initialized");
+    console.log("✓ Parallax script loaded");
 
-    // Store initial positions of all elements
-    initializeElements();
+    // Initialize elements
+    initParallaxElements();
 
-    // Set up scroll handling with requestAnimationFrame for smooth performance
-    wixWindowFrontend.onScroll(() => {
-        if (!ticking) {
-            window.requestAnimationFrame(() => {
-                handleParallax();
-                ticking = false;
-            });
-            ticking = true;
-        }
-    });
+    // Use native JavaScript scroll event (works in Wix)
+    if (typeof window !== 'undefined') {
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        console.log("✓ Scroll listener attached");
+    }
 
-    console.log("✓ Scroll listener attached");
+    // Initial position update
+    requestAnimationFrame(updateParallax);
 });
 
 /**
- * Initialize and store starting positions
+ * Initialize parallax elements and store their data
  */
-function initializeElements() {
-    const allConfigs = [
-        ...parallaxConfig.slowElements.map(c => ({ ...c, type: 'slow' })),
-        ...parallaxConfig.mediumElements.map(c => ({ ...c, type: 'medium' })),
-        ...parallaxConfig.fastElements.map(c => ({ ...c, type: 'fast' }))
-    ];
-
-    allConfigs.forEach(config => {
+function initParallaxElements() {
+    parallaxConfig.elements.forEach(config => {
         try {
-            const element = $w(`#${config.element}`);
+            const element = $w(`#${config.id}`);
 
-            // Check if element exists and is visible
-            if (element) {
-                // Get bounding box to find actual position
-                element.getBoundingClientRect().then(rect => {
-                    const viewportOffset = wixWindowFrontend.scrollY;
-                    const absoluteY = rect.top + viewportOffset;
+            // Store initial position and element reference
+            elementData.push({
+                id: config.id,
+                element: element,
+                speed: config.speed,
+                initialY: null, // Will be set on first scroll
+                lastOffset: 0
+            });
 
-                    initialPositions.set(config.element, {
-                        y: absoluteY,
-                        speed: config.speed,
-                        element: element
-                    });
+            console.log(`✓ Registered ${config.id} with speed ${config.speed}`);
+        } catch (e) {
+            console.log(`✗ Element #${config.id} not found`);
+        }
+    });
 
-                    console.log(`✓ Initialized ${config.element}`);
-                }).catch(err => {
-                    console.log(`✗ Could not get position for ${config.element}`);
-                });
+    if (elementData.length === 0) {
+        console.log("⚠ No parallax elements configured. Add element IDs to parallaxConfig.");
+    }
+}
+
+/**
+ * Handle scroll event
+ */
+function handleScroll() {
+    if (!isScrolling) {
+        window.requestAnimationFrame(updateParallax);
+        isScrolling = true;
+    }
+}
+
+/**
+ * Update parallax positions
+ */
+function updateParallax() {
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+    elementData.forEach(data => {
+        try {
+            // Set initial Y position on first scroll
+            if (data.initialY === null) {
+                data.initialY = data.element.y;
+            }
+
+            // Calculate parallax offset
+            // Speed < 1 = slower than scroll (background effect)
+            // Speed > 1 = faster than scroll (foreground effect)
+            const offset = scrollY * (1 - data.speed);
+
+            // Only update if position changed significantly (performance optimization)
+            if (Math.abs(offset - data.lastOffset) > 0.5) {
+                data.element.y = data.initialY + offset;
+                data.lastOffset = offset;
             }
         } catch (e) {
-            console.log(`✗ Element #${config.element} not found in editor`);
+            // Element may have been removed from DOM
         }
     });
+
+    isScrolling = false;
 }
 
 /**
- * Handle parallax effect on scroll
+ * Add parallax effect to an element dynamically
+ * @param {string} elementId - Element ID without #
+ * @param {number} speed - Parallax speed (0.1 to 2.0)
  */
-function handleParallax() {
-    const scrollY = wixWindowFrontend.scrollY;
-
-    initialPositions.forEach((data, elementId) => {
-        try {
-            // Calculate parallax offset
-            // speed < 1 = moves slower (background effect)
-            // speed > 1 = moves faster (foreground effect)
-            const parallaxOffset = scrollY * (1 - data.speed);
-
-            // Apply the transform
-            data.element.y = data.y + parallaxOffset;
-
-        } catch (e) {
-            // Silently handle errors
-        }
-    });
-}
-
-/**
- * Add parallax to an element dynamically
- * Usage: Call this from a button or onReady with your element ID
- * Example: addParallax('myImage', 0.5);
- * 
- * @param {string} elementId - The ID of the element (without #)
- * @param {number} speed - Speed multiplier (0.1-2.0)
- * @param {string} layer - 'slow', 'medium', or 'fast'
- */
-export function addParallax(elementId, speed = 0.5, layer = 'medium') {
+export function addParallax(elementId, speed = 0.5) {
     try {
         const element = $w(`#${elementId}`);
 
-        element.getBoundingClientRect().then(rect => {
-            const viewportOffset = wixWindowFrontend.scrollY;
-            const absoluteY = rect.top + viewportOffset;
+        // Check if element already has parallax
+        const exists = elementData.find(d => d.id === elementId);
+        if (exists) {
+            console.log(`⚠ Element #${elementId} already has parallax`);
+            return;
+        }
 
-            initialPositions.set(elementId, {
-                y: absoluteY,
-                speed: speed,
-                element: element
-            });
-
-            console.log(`✓ Added parallax to #${elementId} with speed ${speed}`);
+        elementData.push({
+            id: elementId,
+            element: element,
+            speed: speed,
+            initialY: element.y,
+            lastOffset: 0
         });
 
+        console.log(`✓ Added parallax to #${elementId} (speed: ${speed})`);
+
+        // Trigger immediate update
+        requestAnimationFrame(updateParallax);
+
     } catch (e) {
-        console.log(`✗ Cannot add parallax to #${elementId}: ${e.message}`);
+        console.log(`✗ Cannot add parallax to #${elementId}: Element not found`);
     }
 }
 
 /**
  * Remove parallax from an element
- * @param {string} elementId - The ID of the element (without #)
+ * @param {string} elementId - Element ID without #
  */
 export function removeParallax(elementId) {
-    if (initialPositions.has(elementId)) {
-        const data = initialPositions.get(elementId);
+    const index = elementData.findIndex(d => d.id === elementId);
 
-        // Reset to original position
+    if (index !== -1) {
+        const data = elementData[index];
+
+        // Reset to initial position
         try {
-            data.element.y = data.y;
+            if (data.initialY !== null) {
+                data.element.y = data.initialY;
+            }
         } catch (e) {
             // Element may no longer exist
         }
 
-        initialPositions.delete(elementId);
+        elementData.splice(index, 1);
         console.log(`✓ Removed parallax from #${elementId}`);
+    } else {
+        console.log(`⚠ Element #${elementId} does not have parallax`);
     }
 }
 
 /**
- * Update parallax speed for an element
- * @param {string} elementId - The ID of the element (without #)
+ * Update speed for an existing parallax element
+ * @param {string} elementId - Element ID without #
  * @param {number} newSpeed - New speed value
  */
 export function updateSpeed(elementId, newSpeed) {
-    if (initialPositions.has(elementId)) {
-        const data = initialPositions.get(elementId);
+    const data = elementData.find(d => d.id === elementId);
+
+    if (data) {
         data.speed = newSpeed;
         console.log(`✓ Updated speed for #${elementId} to ${newSpeed}`);
+        requestAnimationFrame(updateParallax);
+    } else {
+        console.log(`⚠ Element #${elementId} does not have parallax`);
     }
 }
 
 /**
- * Reset all elements to original positions
+ * Reset all elements to their original positions
  */
-export function resetAllParallax() {
-    initialPositions.forEach((data, elementId) => {
+export function resetAll() {
+    elementData.forEach(data => {
         try {
-            data.element.y = data.y;
+            if (data.initialY !== null) {
+                data.element.y = data.initialY;
+                data.lastOffset = 0;
+            }
         } catch (e) {
             // Element may no longer exist
         }
     });
-    console.log("✓ Reset all parallax positions");
-}
 
-/**
- * Smooth scroll to element
- * @param {string} elementId - Target element ID (without #)
- * @param {number} offset - Additional offset in pixels (default: -100)
- */
-export function scrollToElement(elementId, offset = -100) {
-    try {
-        $w(`#${elementId}`).scrollTo({
-            offset: offset
-        });
-    } catch (e) {
-        console.log(`✗ Cannot scroll to #${elementId}`);
-    }
+    console.log("✓ Reset all parallax elements");
 }
 
 /**
  * Disable all parallax effects
  */
-export function disableAllParallax() {
-    initialPositions.clear();
-    console.log("✓ All parallax effects disabled");
+export function disableAll() {
+    resetAll();
+    elementData = [];
+    console.log("✓ Disabled all parallax effects");
 }
 
-// Example usage - uncomment and modify:
+/**
+ * Get list of all elements with parallax
+ */
+export function listParallaxElements() {
+    console.log("=== Parallax Elements ===");
+    elementData.forEach(data => {
+        console.log(`- #${data.id} (speed: ${data.speed})`);
+    });
+    return elementData.map(d => ({ id: d.id, speed: d.speed }));
+}
+
+// ====== USAGE EXAMPLES ======
+// Uncomment and modify these examples:
+
 /*
+// Example 1: Add parallax in onReady
 $w.onReady(function() {
-    // Add parallax to specific elements
-    addParallax('heroImage', 0.3);  // Slow background
-    addParallax('titleText', 0.7);  // Medium speed
-    addParallax('buttonGroup', 1.2); // Fast foreground
-
-    // Or use button click handlers
-    $w('#enableParallaxBtn').onClick(() => {
-        addParallax('myImage', 0.5);
-    });
-
-    $w('#disableParallaxBtn').onClick(() => {
-        disableAllParallax();
-    });
+    addParallax('heroImage', 0.3);     // Slow background
+    addParallax('textBox1', 0.7);      // Medium speed
+    addParallax('logo', 1.2);          // Fast foreground
 });
+
+// Example 2: Add parallax on button click
+export function enableButton_click(event) {
+    addParallax('myImage', 0.5);
+}
+
+// Example 3: Remove parallax on button click
+export function disableButton_click(event) {
+    removeParallax('myImage');
+}
+
+// Example 4: Change speed dynamically
+export function fasterButton_click(event) {
+    updateSpeed('myImage', 1.5);
+}
+
+// Example 5: Reset all positions
+export function resetButton_click(event) {
+    resetAll();
+}
+
+// Example 6: List all parallax elements
+export function listButton_click(event) {
+    listParallaxElements();
+}
 */
 
 //Try to pull in scaling, etc from the below code:
