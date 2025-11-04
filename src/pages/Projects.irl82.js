@@ -1,67 +1,119 @@
-// Wix Velo Parallax Effect
+// Wix Velo Parallax Effect with Fade & Scale
 // Compatible with Wix Editor - Uses native scroll events
 
 // ====== CONFIGURATION ======
-// Add your element IDs here (without the # symbol)
 const parallaxConfig = {
-    // Example elements - replace with your actual element IDs:
+    // Parallax movement elements
     elements: [
-        { id: 'backgroundImage1', speed: 0.3 },        // Slow background
-        { id: 'backgroundImage2', speed: 0.3 },        // Slow background
-        { id: 'middleLayer1', speed: 0.6 },       // Medium speed
-        { id: 'middleLayer2', speed: 0.6 },       // Medium speed
-        { id: 'foregroundElement1', speed: 0.8 },        // Faster foreground
-        { id: 'foregroundElement2', speed: 0.8 },        // Faster foreground
+        { id: 'backgroundImage1', speed: 0.3 },
+        { id: 'backgroundImage2', speed: 0.3 },
+        { id: 'middleLayer1', speed: 0.6 },
+        { id: 'middleLayer2', speed: 0.6 },
+        { id: 'foregroundElement1', speed: 0.8 },
+        { id: 'foregroundElement2', speed: 0.8 },
+    ],
+
+    // Fade elements (hide/show based on scroll)
+    fadeElements: [
+        { id: 'fadeBox1', startFade: 0, endFade: 500 },
+        { id: 'fadeBox2', startFade: 300, endFade: 800 }
+    ],
+
+    // Scale elements (zoom in/out based on scroll)
+    scaleElements: [
+        { id: 'scaleImage1', startScale: 1.0, endScale: 1.2, scrollRange: 1000 }
     ]
 };
 
-// Storage for element data
+// Storage
 let elementData = [];
+let fadeData = [];
+let scaleData = [];
 let isScrolling = false;
 
 // Initialize on page ready
 $w.onReady(function () {
     console.log("✓ Parallax script loaded");
 
-    // Initialize elements
+    // Initialize all effects
     initParallaxElements();
+    initFadeElements();
+    initScaleElements();
 
-    // Use native JavaScript scroll event (works in Wix)
+    // Native JavaScript scroll event
     if (typeof window !== 'undefined') {
         window.addEventListener('scroll', handleScroll, { passive: true });
         console.log("✓ Scroll listener attached");
     }
 
-    // Initial position update
-    requestAnimationFrame(updateParallax);
+    // Initial update
+    requestAnimationFrame(updateAllEffects);
 });
 
 /**
- * Initialize parallax elements and store their data
+ * Initialize parallax movement elements
  */
 function initParallaxElements() {
     parallaxConfig.elements.forEach(config => {
         try {
             const element = $w(`#${config.id}`);
-
-            // Store initial position and element reference
             elementData.push({
                 id: config.id,
                 element: element,
                 speed: config.speed,
-                initialY: null, // Will be set on first scroll
+                initialY: null,
                 lastOffset: 0
             });
-
-            console.log(`✓ Registered ${config.id} with speed ${config.speed}`);
+            console.log(`✓ Parallax: ${config.id} (speed: ${config.speed})`);
         } catch (e) {
             console.log(`✗ Element #${config.id} not found`);
         }
     });
+}
 
-    if (elementData.length === 0) {
-        console.log("⚠ No parallax elements configured. Add element IDs to parallaxConfig.");
-    }
+/**
+ * Initialize fade elements
+ */
+function initFadeElements() {
+    parallaxConfig.fadeElements.forEach(config => {
+        try {
+            const element = $w(`#${config.id}`);
+            fadeData.push({
+                id: config.id,
+                element: element,
+                startFade: config.startFade,
+                endFade: config.endFade,
+                isVisible: true
+            });
+            console.log(`✓ Fade: ${config.id} (${config.startFade}-${config.endFade}px)`);
+        } catch (e) {
+            console.log(`✗ Fade element #${config.id} not found`);
+        }
+    });
+}
+
+/**
+ * Initialize scale elements
+ */
+function initScaleElements() {
+    parallaxConfig.scaleElements.forEach(config => {
+        try {
+            const element = $w(`#${config.id}`);
+            scaleData.push({
+                id: config.id,
+                element: element,
+                startScale: config.startScale,
+                endScale: config.endScale,
+                scrollRange: config.scrollRange,
+                initialWidth: element.width,
+                initialHeight: element.height,
+                lastScale: config.startScale
+            });
+            console.log(`✓ Scale: ${config.id} (${config.startScale}→${config.endScale})`);
+        } catch (e) {
+            console.log(`✗ Scale element #${config.id} not found`);
+        }
+    });
 }
 
 /**
@@ -69,55 +121,100 @@ function initParallaxElements() {
  */
 function handleScroll() {
     if (!isScrolling) {
-        window.requestAnimationFrame(updateParallax);
+        window.requestAnimationFrame(updateAllEffects);
         isScrolling = true;
     }
 }
 
 /**
- * Update parallax positions
+ * Update all effects
  */
-function updateParallax() {
+function updateAllEffects() {
     const scrollY = window.pageYOffset || document.documentElement.scrollTop;
 
-    elementData.forEach(data => {
-        try {
-            // Set initial Y position on first scroll
-            if (data.initialY === null) {
-                data.initialY = data.element.y;
-            }
-
-            // Calculate parallax offset
-            // Speed < 1 = slower than scroll (background effect)
-            // Speed > 1 = faster than scroll (foreground effect)
-            const offset = scrollY * (1 - data.speed);
-
-            // Only update if position changed significantly (performance optimization)
-            if (Math.abs(offset - data.lastOffset) > 0.5) {
-                data.element.y = data.initialY + offset;
-                data.lastOffset = offset;
-            }
-        } catch (e) {
-            // Element may have been removed from DOM
-        }
-    });
+    updateParallax(scrollY);
+    updateFade(scrollY);
+    updateScale(scrollY);
 
     isScrolling = false;
 }
 
 /**
- * Add parallax effect to an element dynamically
+ * Update parallax positions
+ */
+function updateParallax(scrollY) {
+    elementData.forEach(data => {
+        try {
+            if (data.initialY === null) {
+                data.initialY = data.element.y;
+            }
+
+            const offset = scrollY * (1 - data.speed);
+
+            if (Math.abs(offset - data.lastOffset) > 0.5) {
+                data.element.y = data.initialY + offset;
+                data.lastOffset = offset;
+            }
+        } catch (e) {
+            // Element removed
+        }
+    });
+}
+
+/**
+ * Update fade effects
+ */
+function updateFade(scrollY) {
+    fadeData.forEach(data => {
+        try {
+            if (scrollY < data.startFade || scrollY > data.endFade) {
+                if (data.isVisible) {
+                    data.element.collapse();
+                    data.isVisible = false;
+                }
+            } else {
+                if (!data.isVisible) {
+                    data.element.expand();
+                    data.isVisible = true;
+                }
+            }
+        } catch (e) {
+            // Element removed
+        }
+    });
+}
+
+/**
+ * Update scale effects
+ */
+function updateScale(scrollY) {
+    scaleData.forEach(data => {
+        try {
+            const progress = Math.min(Math.max(scrollY / data.scrollRange, 0), 1);
+            const scale = data.startScale + (data.endScale - data.startScale) * progress;
+
+            if (Math.abs(scale - data.lastScale) > 0.01) {
+                data.element.width = data.initialWidth * scale;
+                data.element.height = data.initialHeight * scale;
+                data.lastScale = scale;
+            }
+        } catch (e) {
+            // Element removed
+        }
+    });
+}
+
+/**
+ * Add parallax to element
  * @param {string} elementId - Element ID without #
- * @param {number} speed - Parallax speed (0.1 to 2.0)
+ * @param {number} speed - Speed (0.1 to 2.0)
  */
 export function addParallax(elementId, speed = 0.5) {
     try {
         const element = $w(`#${elementId}`);
 
-        // Check if element already has parallax
-        const exists = elementData.find(d => d.id === elementId);
-        if (exists) {
-            console.log(`⚠ Element #${elementId} already has parallax`);
+        if (elementData.find(d => d.id === elementId)) {
+            console.log(`⚠ #${elementId} already has parallax`);
             return;
         }
 
@@ -130,395 +227,182 @@ export function addParallax(elementId, speed = 0.5) {
         });
 
         console.log(`✓ Added parallax to #${elementId} (speed: ${speed})`);
-
-        // Trigger immediate update
-        requestAnimationFrame(updateParallax);
-
+        requestAnimationFrame(updateAllEffects);
     } catch (e) {
-        console.log(`✗ Cannot add parallax to #${elementId}: Element not found`);
+        console.log(`✗ Cannot add parallax to #${elementId}`);
     }
 }
 
 /**
- * Remove parallax from an element
+ * Add fade effect to element
  * @param {string} elementId - Element ID without #
+ * @param {number} startFade - Start scroll position
+ * @param {number} endFade - End scroll position
+ */
+export function addFade(elementId, startFade, endFade) {
+    try {
+        const element = $w(`#${elementId}`);
+
+        if (fadeData.find(d => d.id === elementId)) {
+            console.log(`⚠ #${elementId} already has fade`);
+            return;
+        }
+
+        fadeData.push({
+            id: elementId,
+            element: element,
+            startFade: startFade,
+            endFade: endFade,
+            isVisible: true
+        });
+
+        console.log(`✓ Added fade to #${elementId} (${startFade}-${endFade}px)`);
+        requestAnimationFrame(updateAllEffects);
+    } catch (e) {
+        console.log(`✗ Cannot add fade to #${elementId}`);
+    }
+}
+
+/**
+ * Add scale effect to element
+ * @param {string} elementId - Element ID without #
+ * @param {number} startScale - Starting scale (e.g., 1.0)
+ * @param {number} endScale - Ending scale (e.g., 1.5)
+ * @param {number} scrollRange - Scroll distance for effect
+ */
+export function addScale(elementId, startScale, endScale, scrollRange) {
+    try {
+        const element = $w(`#${elementId}`);
+
+        if (scaleData.find(d => d.id === elementId)) {
+            console.log(`⚠ #${elementId} already has scale`);
+            return;
+        }
+
+        scaleData.push({
+            id: elementId,
+            element: element,
+            startScale: startScale,
+            endScale: endScale,
+            scrollRange: scrollRange,
+            initialWidth: element.width,
+            initialHeight: element.height,
+            lastScale: startScale
+        });
+
+        console.log(`✓ Added scale to #${elementId} (${startScale}→${endScale})`);
+        requestAnimationFrame(updateAllEffects);
+    } catch (e) {
+        console.log(`✗ Cannot add scale to #${elementId}`);
+    }
+}
+
+/**
+ * Remove parallax from element
  */
 export function removeParallax(elementId) {
     const index = elementData.findIndex(d => d.id === elementId);
-
     if (index !== -1) {
         const data = elementData[index];
-
-        // Reset to initial position
         try {
             if (data.initialY !== null) {
                 data.element.y = data.initialY;
             }
-        } catch (e) {
-            // Element may no longer exist
-        }
-
+        } catch (e) { }
         elementData.splice(index, 1);
         console.log(`✓ Removed parallax from #${elementId}`);
-    } else {
-        console.log(`⚠ Element #${elementId} does not have parallax`);
     }
 }
 
 /**
- * Update speed for an existing parallax element
- * @param {string} elementId - Element ID without #
- * @param {number} newSpeed - New speed value
+ * Remove fade from element
+ */
+export function removeFade(elementId) {
+    const index = fadeData.findIndex(d => d.id === elementId);
+    if (index !== -1) {
+        const data = fadeData[index];
+        try {
+            if (!data.isVisible) {
+                data.element.expand();
+            }
+        } catch (e) { }
+        fadeData.splice(index, 1);
+        console.log(`✓ Removed fade from #${elementId}`);
+    }
+}
+
+/**
+ * Remove scale from element
+ */
+export function removeScale(elementId) {
+    const index = scaleData.findIndex(d => d.id === elementId);
+    if (index !== -1) {
+        const data = scaleData[index];
+        try {
+            data.element.width = data.initialWidth;
+            data.element.height = data.initialHeight;
+        } catch (e) { }
+        scaleData.splice(index, 1);
+        console.log(`✓ Removed scale from #${elementId}`);
+    }
+}
+
+/**
+ * Update speed for parallax element
  */
 export function updateSpeed(elementId, newSpeed) {
     const data = elementData.find(d => d.id === elementId);
-
     if (data) {
         data.speed = newSpeed;
         console.log(`✓ Updated speed for #${elementId} to ${newSpeed}`);
-        requestAnimationFrame(updateParallax);
-    } else {
-        console.log(`⚠ Element #${elementId} does not have parallax`);
+        requestAnimationFrame(updateAllEffects);
     }
 }
 
 /**
- * Reset all elements to their original positions
+ * Reset all effects
  */
 export function resetAll() {
-    elementData.forEach(data => {
+    elementData.forEach(d => {
         try {
-            if (data.initialY !== null) {
-                data.element.y = data.initialY;
-                data.lastOffset = 0;
-            }
-        } catch (e) {
-            // Element may no longer exist
-        }
+            if (d.initialY !== null) d.element.y = d.initialY;
+        } catch (e) { }
     });
-
-    console.log("✓ Reset all parallax elements");
+    scaleData.forEach(d => {
+        try {
+            d.element.width = d.initialWidth;
+            d.element.height = d.initialHeight;
+        } catch (e) { }
+    });
+    fadeData.forEach(d => {
+        try {
+            if (!d.isVisible) d.element.expand();
+        } catch (e) { }
+    });
+    console.log("✓ Reset all effects");
 }
 
 /**
- * Disable all parallax effects
+ * Disable all effects
  */
 export function disableAll() {
     resetAll();
     elementData = [];
-    console.log("✓ Disabled all parallax effects");
-}
-
-/**
- * Get list of all elements with parallax
- */
-export function listParallaxElements() {
-    console.log("=== Parallax Elements ===");
-    elementData.forEach(data => {
-        console.log(`- #${data.id} (speed: ${data.speed})`);
-    });
-    return elementData.map(d => ({ id: d.id, speed: d.speed }));
+    fadeData = [];
+    scaleData = [];
+    console.log("✓ Disabled all effects");
 }
 
 // ====== USAGE EXAMPLES ======
-// Uncomment and modify these examples:
-
 /*
-// Example 1: Add parallax in onReady
 $w.onReady(function() {
-    addParallax('heroImage', 0.3);     // Slow background
-    addParallax('textBox1', 0.7);      // Medium speed
-    addParallax('logo', 1.2);          // Fast foreground
+    // Parallax
+    addParallax('heroImage', 0.3);
+    
+    // Fade (visible between 200-800px scroll)
+    addFade('fadeBox', 200, 800);
+    
+    // Scale (zoom from 1.0 to 1.5 over 1000px scroll)
+    addScale('zoomImage', 1.0, 1.5, 1000);
 });
-
-// Example 2: Add parallax on button click
-export function enableButton_click(event) {
-    addParallax('myImage', 0.5);
-}
-
-// Example 3: Remove parallax on button click
-export function disableButton_click(event) {
-    removeParallax('myImage');
-}
-
-// Example 4: Change speed dynamically
-export function fasterButton_click(event) {
-    updateSpeed('myImage', 1.5);
-}
-
-// Example 5: Reset all positions
-export function resetButton_click(event) {
-    resetAll();
-}
-
-// Example 6: List all parallax elements
-export function listButton_click(event) {
-    listParallaxElements();
-}
 */
-
-//Try to pull in scaling, etc from the below code:
-
-// // Import Wix modules
-// import wixWindow from 'wix-window';
-
-// // Configuration object - customize these values for your elements
-// const parallaxConfig = {
-//     // Slow moving background elements (move slower than scroll)
-//     slowElements: [
-//         { element: 'backgroundImage1', speed: 0.3, initialY: 0 },
-//         { element: 'backgroundImage2', speed: 0.4, initialY: 0 }
-//     ],
-//     // Medium speed elements
-//     mediumElements: [
-//         { element: 'middleLayer1', speed: 0.6, initialY: 0 },
-//         { element: 'middleLayer2', speed: 0.7, initialY: 0 }
-//     ],
-//     // Fast moving foreground elements (move faster than scroll)
-//     fastElements: [
-//         { element: 'foregroundElement1', speed: 1.2, initialY: 0 },
-//         { element: 'foregroundElement2', speed: 1.4, initialY: 0 }
-//     ],
-//     // Fade in/out elements based on scroll
-//     fadeElements: [
-//         { element: 'fadeBox1', startFade: 0, endFade: 500 },
-//         { element: 'fadeBox2', startFade: 300, endFade: 800 }
-//     ],
-//     // Scale elements on scroll
-//     scaleElements: [
-//         { element: 'scaleImage1', startScale: 1, endScale: 1.2, scrollRange: 1000 }
-//     ]
-// };
-
-// let lastScrollY = 0;
-
-// // Main parallax handler
-// $w.onReady(function () {
-//     console.log("Parallax script loaded");
-
-//     // Store initial positions
-//     initializeParallax();
-
-//     // Add scroll listener using wixWindow
-//     wixWindow.onScroll((event) => {
-//         handleParallax(event.scrollY);
-//     });
-
-//     // Handle initial state
-//     handleParallax(0);
-// });
-
-// /**
-//  * Initialize parallax elements with starting positions
-//  */
-// function initializeParallax() {
-//     // Store initial Y positions for all parallax elements
-//     const allElements = [
-//         ...parallaxConfig.slowElements,
-//         ...parallaxConfig.mediumElements,
-//         ...parallaxConfig.fastElements
-//     ];
-
-//     allElements.forEach(config => {
-//         try {
-//             const element = $w(`#${config.element}`);
-//             config.initialY = element.y;
-//             console.log(`Initialized ${config.element} at Y: ${config.initialY}`);
-//         } catch (e) {
-//             console.log(`Element #${config.element} not found - skipping`);
-//         }
-//     });
-
-//     // Initialize scale elements
-//     parallaxConfig.scaleElements.forEach(config => {
-//         try {
-//             const element = $w(`#${config.element}`);
-//             config.initialWidth = element.width;
-//             config.initialHeight = element.height;
-//             console.log(`Initialized scale for ${config.element}`);
-//         } catch (e) {
-//             console.log(`Scale element #${config.element} not found - skipping`);
-//         }
-//     });
-// }
-
-// /**
-//  * Main parallax effect handler
-//  * @param {number} scrollY - Current scroll position
-//  */
-// function handleParallax(scrollY) {
-//     // Handle slow moving elements
-//     parallaxConfig.slowElements.forEach(config => {
-//         moveElement(config, scrollY);
-//     });
-
-//     // Handle medium speed elements
-//     parallaxConfig.mediumElements.forEach(config => {
-//         moveElement(config, scrollY);
-//     });
-
-//     // Handle fast moving elements
-//     parallaxConfig.fastElements.forEach(config => {
-//         moveElement(config, scrollY);
-//     });
-
-//     // Handle fade effects
-//     parallaxConfig.fadeElements.forEach(config => {
-//         fadeElement(config, scrollY);
-//     });
-
-//     // Handle scale effects
-//     parallaxConfig.scaleElements.forEach(config => {
-//         scaleElement(config, scrollY);
-//     });
-
-//     lastScrollY = scrollY;
-// }
-
-// /**
-//  * Move element based on scroll position and speed
-//  * @param {object} config - Element configuration object
-//  * @param {number} scrollY - Current scroll position
-//  */
-// function moveElement(config, scrollY) {
-//     try {
-//         const element = $w(`#${config.element}`);
-
-//         // Calculate movement based on speed
-//         // Speed < 1 = slower than scroll (background)
-//         // Speed > 1 = faster than scroll (foreground)
-//         const movement = scrollY * (1 - config.speed);
-//         const newY = config.initialY + movement;
-
-//         element.y = newY;
-
-//     } catch (e) {
-//         // Element not found - silently skip
-//     }
-// }
-
-// /**
-//  * Fade element based on scroll position
-//  * @param {object} config - Element configuration with startFade and endFade
-//  * @param {number} scrollY - Current scroll position
-//  */
-// function fadeElement(config, scrollY) {
-//     try {
-//         const element = $w(`#${config.element}`);
-
-//         if (scrollY < config.startFade) {
-//             element.hide();
-//         } else if (scrollY > config.endFade) {
-//             element.hide();
-//         } else {
-//             element.show();
-//             const range = config.endFade - config.startFade;
-//             const progress = (scrollY - config.startFade) / range;
-//             const opacity = 1 - progress;
-
-//             // Wix doesn't support opacity directly, so we hide/show
-//             // For smoother fading, use Wix's built-in effects in the editor
-//             if (opacity < 0.5) {
-//                 element.hide();
-//             } else {
-//                 element.show();
-//             }
-//         }
-//     } catch (e) {
-//         // Element not found
-//     }
-// }
-
-// /**
-//  * Scale element based on scroll position
-//  * @param {object} config - Element configuration
-//  * @param {number} scrollY - Current scroll position
-//  */
-// function scaleElement(config, scrollY) {
-//     try {
-//         const element = $w(`#${config.element}`);
-//         const progress = Math.min(scrollY / config.scrollRange, 1);
-//         const scale = config.startScale + (config.endScale - config.startScale) * progress;
-
-//         // Scale using width and height
-//         element.width = config.initialWidth * scale;
-//         element.height = config.initialHeight * scale;
-
-//     } catch (e) {
-//         // Element not found
-//     }
-// }
-
-// /**
-//  * Smooth scroll to section
-//  * Call this from button clicks: onClick event -> smoothScrollToElement('targetElementId')
-//  * @param {string} elementId - Target element ID (without #)
-//  */
-// export function smoothScrollToElement(elementId) {
-//     try {
-//         const element = $w(`#${elementId}`);
-//         wixWindow.scrollTo(0, element.y - 100, {
-//             duration: 800
-//         });
-//     } catch (e) {
-//         console.log(`Cannot scroll to #${elementId}`);
-//     }
-// }
-
-// /**
-//  * Enable parallax on specific element
-//  * @param {string} elementId - Element ID without #
-//  * @param {number} speed - Parallax speed (0.1 to 2.0)
-//  */
-// export function addParallaxToElement(elementId, speed) {
-//     try {
-//         const element = $w(`#${elementId}`);
-//         const initialY = element.y;
-
-//         parallaxConfig.mediumElements.push({
-//             element: elementId,
-//             speed: speed,
-//             initialY: initialY
-//         });
-
-//         console.log(`Added parallax to #${elementId} with speed ${speed}`);
-//     } catch (e) {
-//         console.log(`Cannot add parallax to #${elementId}`);
-//     }
-// }
-
-// /**
-//  * Disable parallax effect
-//  */
-// export function disableParallax() {
-//     // Clear all configs
-//     parallaxConfig.slowElements = [];
-//     parallaxConfig.mediumElements = [];
-//     parallaxConfig.fastElements = [];
-//     parallaxConfig.fadeElements = [];
-//     parallaxConfig.scaleElements = [];
-
-//     console.log("Parallax disabled");
-// }
-
-// /**
-//  * Reset all elements to original positions
-//  */
-// export function resetParallax() {
-//     const allElements = [
-//         ...parallaxConfig.slowElements,
-//         ...parallaxConfig.mediumElements,
-//         ...parallaxConfig.fastElements
-//     ];
-
-//     allElements.forEach(config => {
-//         try {
-//             const element = $w(`#${config.element}`);
-//             element.y = config.initialY;
-//         } catch (e) {
-//             // Element not found
-//         }
-//     });
-
-//     console.log("Parallax positions reset");
-// }
