@@ -4,12 +4,12 @@
 // ====== CONFIGURATION ======
 const parallaxConfig = {
     elements: [
-        { id: 'backgroundImage1', speed: 0.5 },   // Slower = background effect
-        { id: 'backgroundImage2', speed: 0.5 },
-        { id: 'middleLayer1', speed: 0.7 },
-        { id: 'middleLayer2', speed: 0.7 },
-        { id: 'foregroundElement1', speed: 0.9 }, // Faster = subtle parallax
-        { id: 'foregroundElement2', speed: 0.9 },
+        { id: 'backgroundImage1', speed: 2.5 },   // Slower = background effect
+        { id: 'backgroundImage2', speed: 2.5 },
+        { id: 'middleLayer1', speed: 4.7 },
+        { id: 'middleLayer2', speed: 4.7 },
+        { id: 'foregroundElement1', speed: 8.9 }, // Faster = subtle parallax
+        { id: 'foregroundElement2', speed: 8.9 },
     ]
 };
 
