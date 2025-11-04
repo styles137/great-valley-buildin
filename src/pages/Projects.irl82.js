@@ -1,16 +1,16 @@
-// Wix Velo Parallax Effect with Fade & Scale
-// Compatible with Wix Editor - Uses native scroll events
+// Wix Velo Parallax Effect - Works with Strips & Containers
+// IMPORTANT: Test on PUBLISHED site, not Preview mode!
 
 // ====== CONFIGURATION ======
 const parallaxConfig = {
     // Parallax movement elements
     elements: [
-        { id: 'backgroundImage1', speed: 0.3 },
-        { id: 'backgroundImage2', speed: 0.3 },
-        { id: 'middleLayer1', speed: 0.6 },
-        { id: 'middleLayer2', speed: 0.6 },
-        { id: 'foregroundElement1', speed: 0.8 },
-        { id: 'foregroundElement2', speed: 0.8 },
+        { id: 'backgroundImage1', speed: 0.5 },  // 0.5 = moves at half scroll speed
+        { id: 'backgroundImage2', speed: 0.5 },
+        { id: 'middleLayer1', speed: 0.7 },      // 0.7 = moves at 70% scroll speed
+        { id: 'middleLayer2', speed: 0.7 },
+        { id: 'foregroundElement1', speed: 0.9 }, // 0.9 = subtle parallax
+        { id: 'foregroundElement2', speed: 0.9 },
     ],
 
     // Fade elements (hide/show based on scroll)
@@ -30,6 +30,7 @@ let elementData = [];
 let fadeData = [];
 let scaleData = [];
 let isScrolling = false;
+let scrollY = 0;
 
 // Initialize on page ready
 $w.onReady(function () {
@@ -44,10 +45,13 @@ $w.onReady(function () {
     if (typeof window !== 'undefined') {
         window.addEventListener('scroll', handleScroll, { passive: true });
         console.log("✓ Scroll listener attached");
+        console.log("⚠ Remember: Test on PUBLISHED site for full functionality!");
     }
 
-    // Initial update
-    requestAnimationFrame(updateAllEffects);
+    // Delay initial update to ensure elements are positioned
+    setTimeout(() => {
+        requestAnimationFrame(updateAllEffects);
+    }, 100);
 });
 
 /**
@@ -57,14 +61,29 @@ function initParallaxElements() {
     parallaxConfig.elements.forEach(config => {
         try {
             const element = $w(`#${config.id}`);
+
+            // Get initial position - use getBoundingClientRect for accuracy
+            let initialTop = 0;
+            element.getBoundingClientRect()
+                .then(rect => {
+                    initialTop = rect.top + window.scrollY;
+                    console.log(`✓ Parallax: ${config.id} at ${initialTop}px (speed: ${config.speed})`);
+                })
+                .catch(() => {
+                    // Fallback to element.y
+                    initialTop = element.y;
+                    console.log(`✓ Parallax: ${config.id} using element.y (speed: ${config.speed})`);
+                });
+
             elementData.push({
                 id: config.id,
                 element: element,
                 speed: config.speed,
-                initialY: null,
-                lastOffset: 0
+                initialY: element.y,  // Store the element's Y relative to container
+                initialTop: initialTop,
+                lastTransform: 0
             });
-            console.log(`✓ Parallax: ${config.id} (speed: ${config.speed})`);
+
         } catch (e) {
             console.log(`✗ Element #${config.id} not found`);
         }
@@ -120,6 +139,8 @@ function initScaleElements() {
  * Handle scroll event
  */
 function handleScroll() {
+    scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
     if (!isScrolling) {
         window.requestAnimationFrame(updateAllEffects);
         isScrolling = true;
@@ -130,8 +151,6 @@ function handleScroll() {
  * Update all effects
  */
 function updateAllEffects() {
-    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-
     updateParallax(scrollY);
     updateFade(scrollY);
     updateScale(scrollY);
@@ -140,23 +159,27 @@ function updateAllEffects() {
 }
 
 /**
- * Update parallax positions
+ * Update parallax positions - ENHANCED VERSION
  */
-function updateParallax(scrollY) {
+function updateParallax(currentScrollY) {
     elementData.forEach(data => {
         try {
-            if (data.initialY === null) {
-                data.initialY = data.element.y;
+            // Calculate how much to offset based on scroll and speed
+            // Speed closer to 0 = slower movement (background effect)
+            // Speed closer to 1 = normal scroll (no parallax)
+            // Speed > 1 = faster than scroll (not recommended for most cases)
+
+            const parallaxAmount = currentScrollY * (1 - data.speed);
+            const newY = data.initialY + parallaxAmount;
+
+            // Only update if change is significant (performance)
+            if (Math.abs(newY - data.element.y) > 0.5) {
+                data.element.y = newY;
+                data.lastTransform = parallaxAmount;
             }
 
-            const offset = scrollY * (1 - data.speed);
-
-            if (Math.abs(offset - data.lastOffset) > 0.5) {
-                data.element.y = data.initialY + offset;
-                data.lastOffset = offset;
-            }
         } catch (e) {
-            // Element removed
+            console.log(`Error updating ${data.id}:`, e.message);
         }
     });
 }
@@ -164,19 +187,17 @@ function updateParallax(scrollY) {
 /**
  * Update fade effects
  */
-function updateFade(scrollY) {
+function updateFade(currentScrollY) {
     fadeData.forEach(data => {
         try {
-            if (scrollY < data.startFade || scrollY > data.endFade) {
-                if (data.isVisible) {
-                    data.element.collapse();
-                    data.isVisible = false;
-                }
-            } else {
-                if (!data.isVisible) {
-                    data.element.expand();
-                    data.isVisible = true;
-                }
+            const shouldBeVisible = currentScrollY >= data.startFade && currentScrollY <= data.endFade;
+
+            if (shouldBeVisible && !data.isVisible) {
+                data.element.expand();
+                data.isVisible = true;
+            } else if (!shouldBeVisible && data.isVisible) {
+                data.element.collapse();
+                data.isVisible = false;
             }
         } catch (e) {
             // Element removed
@@ -187,10 +208,10 @@ function updateFade(scrollY) {
 /**
  * Update scale effects
  */
-function updateScale(scrollY) {
+function updateScale(currentScrollY) {
     scaleData.forEach(data => {
         try {
-            const progress = Math.min(Math.max(scrollY / data.scrollRange, 0), 1);
+            const progress = Math.min(Math.max(currentScrollY / data.scrollRange, 0), 1);
             const scale = data.startScale + (data.endScale - data.startScale) * progress;
 
             if (Math.abs(scale - data.lastScale) > 0.01) {
@@ -205,9 +226,43 @@ function updateScale(scrollY) {
 }
 
 /**
- * Add parallax to element
- * @param {string} elementId - Element ID without #
- * @param {number} speed - Speed (0.1 to 2.0)
+ * DEBUG: Log current scroll and element positions
+ */
+export function debugParallax() {
+    const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+    console.log("=== DEBUG INFO ===");
+    console.log(`Current scroll: ${currentScroll}px`);
+
+    elementData.forEach(data => {
+        try {
+            console.log(`${data.id}: Y=${data.element.y}, InitialY=${data.initialY}, Speed=${data.speed}`);
+        } catch (e) {
+            console.log(`${data.id}: Error reading position`);
+        }
+    });
+}
+
+/**
+ * TEST: Force move an element to verify it's not locked
+ */
+export function testMove(elementId) {
+    try {
+        const element = $w(`#${elementId}`);
+        const originalY = element.y;
+        element.y = originalY + 100;
+        console.log(`✓ Moved #${elementId} from ${originalY} to ${element.y}`);
+
+        setTimeout(() => {
+            element.y = originalY;
+            console.log(`✓ Reset #${elementId} back to ${originalY}`);
+        }, 1000);
+    } catch (e) {
+        console.log(`✗ Cannot test #${elementId}:`, e.message);
+    }
+}
+
+/**
+ * Add parallax to element dynamically
  */
 export function addParallax(elementId, speed = 0.5) {
     try {
@@ -223,132 +278,19 @@ export function addParallax(elementId, speed = 0.5) {
             element: element,
             speed: speed,
             initialY: element.y,
-            lastOffset: 0
+            initialTop: 0,
+            lastTransform: 0
         });
 
         console.log(`✓ Added parallax to #${elementId} (speed: ${speed})`);
         requestAnimationFrame(updateAllEffects);
     } catch (e) {
-        console.log(`✗ Cannot add parallax to #${elementId}`);
+        console.log(`✗ Cannot add parallax to #${elementId}:`, e.message);
     }
 }
 
 /**
- * Add fade effect to element
- * @param {string} elementId - Element ID without #
- * @param {number} startFade - Start scroll position
- * @param {number} endFade - End scroll position
- */
-export function addFade(elementId, startFade, endFade) {
-    try {
-        const element = $w(`#${elementId}`);
-
-        if (fadeData.find(d => d.id === elementId)) {
-            console.log(`⚠ #${elementId} already has fade`);
-            return;
-        }
-
-        fadeData.push({
-            id: elementId,
-            element: element,
-            startFade: startFade,
-            endFade: endFade,
-            isVisible: true
-        });
-
-        console.log(`✓ Added fade to #${elementId} (${startFade}-${endFade}px)`);
-        requestAnimationFrame(updateAllEffects);
-    } catch (e) {
-        console.log(`✗ Cannot add fade to #${elementId}`);
-    }
-}
-
-/**
- * Add scale effect to element
- * @param {string} elementId - Element ID without #
- * @param {number} startScale - Starting scale (e.g., 1.0)
- * @param {number} endScale - Ending scale (e.g., 1.5)
- * @param {number} scrollRange - Scroll distance for effect
- */
-export function addScale(elementId, startScale, endScale, scrollRange) {
-    try {
-        const element = $w(`#${elementId}`);
-
-        if (scaleData.find(d => d.id === elementId)) {
-            console.log(`⚠ #${elementId} already has scale`);
-            return;
-        }
-
-        scaleData.push({
-            id: elementId,
-            element: element,
-            startScale: startScale,
-            endScale: endScale,
-            scrollRange: scrollRange,
-            initialWidth: element.width,
-            initialHeight: element.height,
-            lastScale: startScale
-        });
-
-        console.log(`✓ Added scale to #${elementId} (${startScale}→${endScale})`);
-        requestAnimationFrame(updateAllEffects);
-    } catch (e) {
-        console.log(`✗ Cannot add scale to #${elementId}`);
-    }
-}
-
-/**
- * Remove parallax from element
- */
-export function removeParallax(elementId) {
-    const index = elementData.findIndex(d => d.id === elementId);
-    if (index !== -1) {
-        const data = elementData[index];
-        try {
-            if (data.initialY !== null) {
-                data.element.y = data.initialY;
-            }
-        } catch (e) { }
-        elementData.splice(index, 1);
-        console.log(`✓ Removed parallax from #${elementId}`);
-    }
-}
-
-/**
- * Remove fade from element
- */
-export function removeFade(elementId) {
-    const index = fadeData.findIndex(d => d.id === elementId);
-    if (index !== -1) {
-        const data = fadeData[index];
-        try {
-            if (!data.isVisible) {
-                data.element.expand();
-            }
-        } catch (e) { }
-        fadeData.splice(index, 1);
-        console.log(`✓ Removed fade from #${elementId}`);
-    }
-}
-
-/**
- * Remove scale from element
- */
-export function removeScale(elementId) {
-    const index = scaleData.findIndex(d => d.id === elementId);
-    if (index !== -1) {
-        const data = scaleData[index];
-        try {
-            data.element.width = data.initialWidth;
-            data.element.height = data.initialHeight;
-        } catch (e) { }
-        scaleData.splice(index, 1);
-        console.log(`✓ Removed scale from #${elementId}`);
-    }
-}
-
-/**
- * Update speed for parallax element
+ * Update speed for existing element
  */
 export function updateSpeed(elementId, newSpeed) {
     const data = elementData.find(d => d.id === elementId);
@@ -356,53 +298,30 @@ export function updateSpeed(elementId, newSpeed) {
         data.speed = newSpeed;
         console.log(`✓ Updated speed for #${elementId} to ${newSpeed}`);
         requestAnimationFrame(updateAllEffects);
+    } else {
+        console.log(`⚠ #${elementId} not found in parallax elements`);
     }
 }
 
 /**
- * Reset all effects
+ * Remove all effects and reset
  */
 export function resetAll() {
     elementData.forEach(d => {
         try {
-            if (d.initialY !== null) d.element.y = d.initialY;
+            d.element.y = d.initialY;
         } catch (e) { }
     });
-    scaleData.forEach(d => {
-        try {
-            d.element.width = d.initialWidth;
-            d.element.height = d.initialHeight;
-        } catch (e) { }
-    });
-    fadeData.forEach(d => {
-        try {
-            if (!d.isVisible) d.element.expand();
-        } catch (e) { }
-    });
-    console.log("✓ Reset all effects");
+    console.log("✓ Reset all elements to initial positions");
 }
 
-/**
- * Disable all effects
- */
-export function disableAll() {
-    resetAll();
-    elementData = [];
-    fadeData = [];
-    scaleData = [];
-    console.log("✓ Disabled all effects");
+// Add button click handler for testing (optional)
+// Create a button with ID "debugBtn" to use this
+export function debugBtn_click(event) {
+    debugParallax();
 }
 
-// ====== USAGE EXAMPLES ======
-/*
-$w.onReady(function() {
-    // Parallax
-    addParallax('heroImage', 0.3);
-    
-    // Fade (visible between 200-800px scroll)
-    addFade('fadeBox', 200, 800);
-    
-    // Scale (zoom from 1.0 to 1.5 over 1000px scroll)
-    addScale('zoomImage', 1.0, 1.5, 1000);
-});
-*/
+// Test move button (create button with ID "testBtn")
+export function testBtn_click(event) {
+    testMove('backgroundImage1');
+}
