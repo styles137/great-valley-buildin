@@ -2,6 +2,7 @@
 // Works with ALL element types, even inside strips/containers!
 
 // ====== CONFIGURATION ======
+//Test Github connection to monday.com
 const parallaxConfig = {
     elements: [
         { id: 'backgroundImage1', speed: 2.5 },   // Slower = background effect
